@@ -1,0 +1,7 @@
+Application(customer-portal):
+ pid: customer-portal
+ vcsType: GIT
+ vcsUrl: git@hades:customer-portal.git
+ checkedOut: false
+ enabled: true
+ mode: PROD

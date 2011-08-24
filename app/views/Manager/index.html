@@ -1,0 +1,18 @@
+#{extends 'main.html' /}
+#{set title:'Home' /}
+<table>
+	<thead>
+		<tr>
+			<th>PID</th>
+			<th>Running</th>
+		</tr>
+	</thead>
+	<tbody>
+		#{list items:applications, as:'application'}
+		   	<tr>
+		   		<td>${application.pid}</td>
+		   		<td>${application.running}</td>
+		   	</tr>
+		#{/list}
+	</tbody>
+</table>
