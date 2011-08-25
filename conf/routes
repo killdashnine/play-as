@@ -1,10 +1,7 @@
-# Routes
-# This file defines all application routes (Higher priority routes first)
-# ~~~~
 
-# Home page
 GET     /                                       Manager.index
 
-# Map static resources from the /app/public folder to the /public path
+*       /		              					module:crud
+
 GET     /public/                                staticDir:public
 

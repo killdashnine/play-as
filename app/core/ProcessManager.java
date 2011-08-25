@@ -28,17 +28,21 @@ public class ProcessManager extends Job {
 		final Runnable shutdownHook = new Runnable() {
 			@Override
 			public void run() {
+				Logger.info("Shutdown hook called");
 				synchronized (processes) {
 					for(final Entry<String, Process> entry : processes.entrySet()) {
 						try {
+							Logger.info("Killing %s", entry.getKey());
 							final Process process = entry.getValue();
 							process.destroy();
+							process.waitFor();
 						}
 						catch (Exception e) {
 							e.printStackTrace();
 						}
 					}
 				}
+				Logger.info("Shutdown hook complete");
 			}
 		};
 		
@@ -70,6 +74,9 @@ public class ProcessManager extends Job {
 		for(final Application application : applications) {
 			if(application.enabled && application.checkedOut && !isProcessRunning(application.pid)) {
 				application.start();
+			}
+			else if(!application.enabled && isProcessRunning(application.pid)) {
+				application.stop();
 			}
 		}
 	}
@@ -106,6 +113,7 @@ public class ProcessManager extends Job {
 			final Process process = processes.remove(pid);
 			if(process != null) {
 				process.destroy();
+				process.waitFor();
 				return process.exitValue();
 			}
 			else {

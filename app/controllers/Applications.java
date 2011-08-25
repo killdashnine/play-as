@@ -14,20 +14,12 @@
  *  limitations under the License.
  */
 
-package scm;
 
-public class VersionControlSystemFactory {
+package controllers;
 
-	public enum VersionControlSystemType {
-		GIT
-	}
-	
-	public static VersionControlSystem getVersionControlSystem(final VersionControlSystemType type) throws Exception {
-		switch(type) {
-			case GIT:
-				return new GitVersionControlSystem();
-			default:
-				throw new Exception("Unimplemented VCS");
-		}
-	}
+import controllers.CRUD.For;
+
+@For(models.Application.class)
+public class Applications extends CRUD {
+
 }

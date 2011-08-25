@@ -14,20 +14,16 @@
  *  limitations under the License.
  */
 
-package scm;
 
-public class VersionControlSystemFactory {
+package core;
 
-	public enum VersionControlSystemType {
-		GIT
-	}
-	
-	public static VersionControlSystem getVersionControlSystem(final VersionControlSystemType type) throws Exception {
-		switch(type) {
-			case GIT:
-				return new GitVersionControlSystem();
-			default:
-				throw new Exception("Unimplemented VCS");
-		}
+import models.Application;
+
+public class PlayUtils {
+
+	public static void generateLogFile(final Application application) {
+		
+		// Logging
+		// See http://www.playframework.org/documentation/1.1.1/production for logging to file
 	}
 }
