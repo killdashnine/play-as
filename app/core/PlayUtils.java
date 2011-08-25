@@ -21,7 +21,7 @@ import models.Application;
 
 public class PlayUtils {
 
-	public static void generateLogFile(final Application application) {
+	public static void generateConfigurationFile(final Application application) {
 		
 		// Logging
 		// See http://www.playframework.org/documentation/1.1.1/production for logging to file

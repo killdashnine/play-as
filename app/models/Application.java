@@ -83,7 +83,7 @@ public class Application extends Model {
 		}
 		
 		// generate application.conf
-		PlayUtils.generateLogFile(this);
+		PlayUtils.generateConfigurationFile(this);
 		
 		ProcessManager.executeProcess(pid, "play run apps/" + pid);
 		Logger.info("Started %s", pid);
