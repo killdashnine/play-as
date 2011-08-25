@@ -33,11 +33,11 @@ import play.Logger;
 import play.Play.Mode;
 import play.data.validation.Required;
 import play.db.jpa.Model;
-import scm.ScmUtils;
 import scm.VersionControlSystemFactory;
 import scm.VersionControlSystemFactory.VersionControlSystemType;
 import core.PlayUtils;
 import core.ProcessManager;
+import core.ProcessManager.ProcessType;
 
 @Entity
 @Table(name="applications")
@@ -85,7 +85,7 @@ public class Application extends Model {
 		// generate application.conf
 		PlayUtils.generateConfigurationFile(this);
 		
-		ProcessManager.executeProcess(pid, "play run apps/" + pid);
+		ProcessManager.executeProcess(pid, "play start apps/" + pid);
 		Logger.info("Started %s", pid);
 	}
 	
@@ -93,11 +93,7 @@ public class Application extends Model {
 	 * Stop the application
 	 */
 	public void stop() throws Exception {
-		if(!isRunning()) {
-			Logger.warn("Not running application %s is being stopped." , pid);
-		}
-		
-		ProcessManager.killProcess(pid);
+		ProcessManager.executeProcess(pid, "play stop apps/" + pid);
 		Logger.info("Stopped %s", pid);
 	}
 	
@@ -112,7 +108,7 @@ public class Application extends Model {
 			throw new Exception("Application " + pid + " has not yet been checked out from SCM");
 		}
 		
-		return ProcessManager.isProcessRunning(pid);
+		return ProcessManager.isProcessRunning(pid, ProcessType.PLAY);
 	}
 	
 	/**
