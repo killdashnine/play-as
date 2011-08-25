@@ -29,6 +29,7 @@ import javax.persistence.Transient;
 
 import org.apache.commons.io.FileUtils;
 
+
 import play.Logger;
 import play.Play.Mode;
 import play.data.validation.Required;
@@ -74,8 +75,8 @@ public class Application extends Model {
 	 * Start the application
 	 * @param force Force start?
 	 */
-	public void start() throws Exception {
-		if(!enabled) {
+	public void start(boolean force) throws Exception {
+		if(!force && !enabled) {
 			throw new Exception("Can not start disabled application " + pid);
 		}
 		else if(isRunning()) {
@@ -99,7 +100,7 @@ public class Application extends Model {
 	
 	public void restart() throws Exception {
 		stop();
-		start();
+		start(false);
 	}
 	
 	@Transient
@@ -116,9 +117,16 @@ public class Application extends Model {
 	 * @throws Exception 
 	 */
 	public void pull() throws Exception {
-		if(isRunning()) {
+		final boolean wasRunning = isRunning();
+		this.enabled = false;
+		this.save();
+		
+		if(wasRunning) {
 			// stop the application
 			stop();
+			
+			// wait for it!
+			ProcessManager.waitForCompletion(this);
 		}
 		
 		// cleanup working directory
@@ -127,8 +135,13 @@ public class Application extends Model {
 		// pull changes from git
 		VersionControlSystemFactory.getVersionControlSystem(vcsType).update(pid);
 		
-		// start the application
-		start(); 
+		// start the application, forced
+		if(wasRunning) {
+			start(true);
+		}
+		
+		this.enabled = wasRunning;
+		this.save();
 	}
 
 	/**

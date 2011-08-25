@@ -17,6 +17,8 @@
 
 package scm;
 
+import java.io.File;
+
 import core.ProcessManager;
 
 public class GitVersionControlSystem implements VersionControlSystem {
@@ -28,7 +30,7 @@ public class GitVersionControlSystem implements VersionControlSystem {
 	
 	public String update(final String pid) throws Exception {
 		final String checkoutPid = "git-pull-" + pid;
-		return ProcessManager.executeCommand(checkoutPid, "git --git-dir=apps/" + pid + "/.git --work-tree=apps/" + pid + " pull origin master");
+		return ProcessManager.executeCommand(checkoutPid, "git pull origin master", new File("apps/" + pid));
 	}
 	
 	public String cleanup(final String pid) throws Exception {

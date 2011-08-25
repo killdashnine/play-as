@@ -1,0 +1,31 @@
+#{extends 'main.html' /}
+#{set title:'Applications' /}
+<h5>/ Applications</h5>
+<table>
+	<thead>
+		<tr>
+			<th>Application</th>
+			<th>Mode</th>
+			<th>Status</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+		#{list items:applications, as:'application'}
+		   	<tr>
+		   		<td>${application.pid}</td>
+		   		<td>${application.mode}</td>
+		   		<td>${application.running ? 'running' : 'stopped'}</td>
+		   		<td>
+		   			#{if application.running == false}
+		   				<a href="@{ApplicationController.start(application.id)}">start</a>
+		   			#{/if}
+		   			#{else}
+		   				<a href="@{ApplicationController.stop(application.id)}">stop</a> 
+		   			#{/else}
+		   			<a href="@{ApplicationController.update(application.id)}">update</a>
+		   		</td>
+		   	</tr>
+		#{/list}
+	</tbody>
+</table>

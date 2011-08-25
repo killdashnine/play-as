@@ -1,7 +1,9 @@
 
-GET     /                                       Manager.index
+GET     /                                       ManagerController.index
 
-*       /		              					module:crud
+GET		/application/{id}/stop					ApplicationController.stop
+GET		/application/{id}/start					ApplicationController.start
+GET		/application/{id}/update				ApplicationController.update
 
 GET     /public/                                staticDir:public
 

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="views/**" kind="src" path="app"/>
-	<classpathentry kind="src" path="crud"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/usr/local/play/framework/play.jar" sourcepath="/usr/local/play/framework"/>
 	<classpathentry kind="lib" path="/usr/local/play/framework/lib/jj-textile.jar"/>

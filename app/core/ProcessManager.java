@@ -17,6 +17,7 @@
 package core;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -24,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.junit.internal.runners.statements.RunAfters;
 
 import models.Application;
 import play.Logger;
@@ -74,18 +74,31 @@ public class ProcessManager extends Job {
 	private static Map<String, Process> processes = new HashMap<String, Process>();
 	
 	public static Process executeProcess(final String pid, final String command) throws Exception {
+		return executeProcess(pid, command, null);
+	}
+	
+	public static Process executeProcess(final String pid, final String command, File workingPath) throws Exception {
 		synchronized (processes) {
 			
 			if(processes.containsKey(pid)) {
 				throw new Exception("pid: " + pid + " already in use");
 			}
 			
-			final Process process = Runtime.getRuntime().exec(command);
+			Process process = null;
+			if(workingPath != null) {
+				process = Runtime.getRuntime().exec(command, null, workingPath);
+			}
+			else {
+				process = Runtime.getRuntime().exec(command);
+			}
 			processes.put(pid, process);
 			
 			return process;
 		}
 	}
+
+	// number of loops to wait for process to change status
+	public static final int MAXIMUM_WAIT_TIME = 60;
 	
 	@Override
 	public void doJob() throws Exception {
@@ -95,7 +108,7 @@ public class ProcessManager extends Job {
 		// check not running applications that should be running
 		for(final Application application : applications) {
 			if(application.enabled && application.checkedOut && !isProcessRunning(application.pid, ProcessType.PLAY)) {
-				application.start();
+				application.start(false);
 			}
 			else if(!application.enabled && isProcessRunning(application.pid, ProcessType.PLAY)) {
 				application.stop();
@@ -103,14 +116,42 @@ public class ProcessManager extends Job {
 		}
 	}
 	
+	public static void waitForCompletion(final Application application)
+			throws Exception, InterruptedException {
+		final boolean status = application.isRunning();
+		
+		Logger.info("Waiting for completion, status: %s", status);
+		
+		int counter = 0;
+		while(application.isRunning() == status && counter < ProcessManager.MAXIMUM_WAIT_TIME) {
+			Thread.sleep(1000);
+			counter++;
+		}
+		
+		if(counter == ProcessManager.MAXIMUM_WAIT_TIME) {
+			throw new Exception("Operation timed out");
+		}
+	}
+
 	public static String executeCommand(final String pid,
 			final String command) throws Exception {
-		return executeCommand(pid, command, true);
+		return executeCommand(pid, command, true, null);
+	}
+	
+	public static String executeCommand(final String pid,
+			final String command, final File workingPath) throws Exception {
+		return executeCommand(pid, command, true, workingPath);
 	}
 	
 	public static synchronized String executeCommand(final String pid,
 			final String command, boolean log) throws Exception {
-		final Process process = executeProcess(pid, command);
+		return executeCommand(pid, command, log, null);
+	}
+	
+	public static synchronized String executeCommand(final String pid,
+			final String command, boolean log, final File workingPath) throws Exception {
+		
+		final Process process = executeProcess(pid, command, workingPath);
 		final BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 		final BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 		final StringBuffer output = new StringBuffer();

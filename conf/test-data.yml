@@ -3,5 +3,5 @@ Application(customer-portal):
  vcsType: GIT
  vcsUrl: git@hades:customer-portal.git
  checkedOut: false
- enabled: true
+ enabled: false
  mode: PROD
