@@ -18,6 +18,7 @@ package core;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -158,25 +159,9 @@ public class ProcessManager extends Job {
 	
 		// asynchronous waiting here
 		while (isProcessRunning(pid, ProcessType.COMMAND)) {
-			String line = reader.readLine();
-			while (line != null) {
-				
-				if(log) {
-					Logger.info("command: %s", line);
-				}
-				
-				output.append(line);
-				line = reader.readLine();
-			}
-			
-			String errorLine = errorReader.readLine();
-			while(errorLine != null) {
-				if(log) {
-					Logger.error("command: %s", errorLine);
-				}
-				output.append(errorLine);
-				errorLine = reader.readLine();
-			}
+			readCommandOutput(log, reader, output);
+			readCommandOutput(log, errorReader, output);
+			Thread.sleep(10);
 		}
 	
 		if(log) {
@@ -193,6 +178,21 @@ public class ProcessManager extends Job {
 		}
 	
 		return output.toString();
+	}
+
+	private static void readCommandOutput(boolean log,
+			final BufferedReader reader, final StringBuffer output)
+			throws IOException {
+		String line = reader.readLine();
+		while (line != null) {
+			
+			if(log) {
+				Logger.info("command: %s", line);
+			}
+			
+			output.append(line);
+			line = reader.readLine();
+		}
 	}
 
 	public static void manageList() {
