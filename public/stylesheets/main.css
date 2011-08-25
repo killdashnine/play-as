@@ -1,0 +1,30 @@
+body {
+	color: #000;
+}
+
+table {
+	width: 600px;
+}
+
+th {
+	text-align: left;
+	padding-right: 20px;
+	border-bottom: 1px solid #000000;
+	color: #02246b;
+}
+
+td {
+	background-color: lightgrey;
+}
+
+a, a:visited {
+	color: #02246b;
+	text-decoration:none;	
+}
+a:hover {
+	text-decoration:underline;
+}
+
+.error {
+	color: red;
+}

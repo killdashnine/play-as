@@ -17,14 +17,42 @@
 
 package controllers;
 
+import com.sun.xml.internal.ws.developer.MemberSubmissionAddressing.Validation;
+
 import core.ProcessManager;
 import models.Application;
+import play.data.validation.Valid;
 import play.mvc.Controller;
 
 public class ApplicationController extends Controller {
 
-	public static void create() {
+	public static void show(final Long id) {
+		final Application application = Application.findById(id);
+		if(application == null) {
+			notFound();
+		}
+		else {
+			render(application);
+		}
+	}
+	
+	public static void edit() {
 		
+	}
+	
+	public static void create(@Valid final Application application) throws Exception {
+		if(!validation.hasErrors()) {
+			application.enabled = false;
+			application.checkedOut = false;
+			application.clean(); // override checkout if already exists
+			application.checkout();
+		}
+		else {
+			params.flash();
+			validation.keep();
+		}
+
+		ManagerController.index();
 	}
 	
 	public static void start(final Long id) throws InterruptedException, Exception {

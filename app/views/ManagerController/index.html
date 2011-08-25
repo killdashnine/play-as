@@ -1,6 +1,6 @@
 #{extends 'main.html' /}
 #{set title:'Applications' /}
-<h5>/ Applications</h5>
+<h5>All applications:</h5>
 <table>
 	<thead>
 		<tr>
@@ -13,15 +13,21 @@
 	<tbody>
 		#{list items:applications, as:'application'}
 		   	<tr>
-		   		<td>${application.pid}</td>
+		   		<td><a href="@{ApplicationController.show(application.id)}">${application.pid}</a></td>
 		   		<td>${application.mode}</td>
-		   		<td>${application.running ? 'running' : 'stopped'}</td>
+		   		<td>
+		   			#{if application.running == true}
+		   				<span style="color: green">running</span>
+		   			#{/if}
+		   			#{else}
+		   				<span style="color: red">stopped</span> 
+		   			#{/else}
 		   		<td>
 		   			#{if application.running == false}
 		   				<a href="@{ApplicationController.start(application.id)}">start</a>
 		   			#{/if}
 		   			#{else}
-		   				<a href="@{ApplicationController.stop(application.id)}">stop</a> 
+		   				<a href="@{ApplicationController.stop(application.id)}" style="color: red">stop</a> 
 		   			#{/else}
 		   			<a href="@{ApplicationController.update(application.id)}">update</a>
 		   		</td>
@@ -29,3 +35,54 @@
 		#{/list}
 	</tbody>
 </table>
+<br/>
+<h5>Checkout application:</h5>
+#{form @ApplicationController.create()}
+<table>
+	<thead>
+		<tr>
+			<th>Setting:</th>
+			<th>Value:</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Application name:</td>
+			<td>
+				<input type="text" name="application.pid" value="${flash['application.pid']}"/>
+				<span class="error">#{error 'application.pid' /}</span>
+			</td>
+		</tr>
+		<tr>
+			<td>VCS type:</td>
+			<td>
+				<select name="application.vcsType">
+					<option ${flash['application.vcsType'] == 'GIT' ? 'selected=\"selected\"'.raw() : ''} value="GIT">GIT</option>
+				</select>
+				<span class="error">#{error 'application.vcsType' /}</span>
+			</td>
+		</tr>
+		<tr>
+			<td>VCS URL:</td>
+			<td>
+				<input type="text" name="application.vcsUrl" value="${flash['application.vcsUrl']}"/>
+				<span class="error">#{error 'application.vcsUrl' /}</span>
+			</td>
+		</tr>
+		<tr>
+			<td>Application mode:</td>
+			<td>
+				<select name="application.mode">
+					<option ${flash['application.mode'] == 'PROD' ? 'selected=\"selected\"'.raw() : ''} value="PROD">PROD</option>
+					<option ${flash['application.mode'] == 'DEV' ? 'selected=\"selected\"'.raw() : ''}  value="DEV">DEV</option>
+				</select>
+				<span class="error">#{error 'application.mode' /}</span>
+			</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td><input type="submit" value="Checkout"/></td>
+		</tr>
+	</tbody>
+</table>
+#{/form}

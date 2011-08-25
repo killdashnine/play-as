@@ -1,9 +1,11 @@
 
 GET     /                                       ManagerController.index
 
+GET		/application/{id}						ApplicationController.show
 GET		/application/{id}/stop					ApplicationController.stop
 GET		/application/{id}/start					ApplicationController.start
 GET		/application/{id}/update				ApplicationController.update
+POST	/applications							ApplicationController.create
 
 GET     /public/                                staticDir:public
 

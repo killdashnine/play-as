@@ -239,8 +239,8 @@ public class ProcessManager extends Job {
 	}
 	
 	public static boolean isProcessRunning(final String pid, final ProcessType type) throws Exception {
-		synchronized (processes) {
-			if(type == ProcessType.COMMAND) {
+		if(type == ProcessType.COMMAND) {
+			synchronized (processes) {
 				final Process process = processes.get(pid);
 				if(process != null) {
 					try {
@@ -255,17 +255,17 @@ public class ProcessManager extends Job {
 					return false;
 				}
 			}
-			else if(type == ProcessType.PLAY) {
-				try {
-					executeCommand("check-" + pid, "play pid apps/" + pid, false);
-					return true;
-				} catch (Exception e) {
-					return false;
-				}
+		}
+		else if(type == ProcessType.PLAY) {
+			try {
+				executeCommand("check-" + pid, "play pid apps/" + pid, false);
+				return true;
+			} catch (Exception e) {
+				return false;
 			}
-			else {
-				throw new Exception("Unhandeld process type: " + type);
-			}
+		}
+		else {
+			throw new Exception("Unhandeld process type: " + type);
 		}
 	}
 }

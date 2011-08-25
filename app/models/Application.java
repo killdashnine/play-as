@@ -44,6 +44,7 @@ import core.ProcessManager.ProcessType;
 @Table(name="applications")
 public class Application extends Model {
 	
+	@Required
 	@Column(updatable = false, unique = true, nullable = false)
 	public String pid;
 	
@@ -55,10 +56,8 @@ public class Application extends Model {
 	@Required
 	public String vcsUrl;
 	
-	@Required
 	public Boolean checkedOut = false;
 	
-	@Required
 	public Boolean enabled;
 	
 	@Column(updatable = true, nullable = false)
