@@ -17,12 +17,17 @@
 
 package controllers;
 
-import com.sun.xml.internal.ws.developer.MemberSubmissionAddressing.Validation;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
 
-import core.ProcessManager;
 import models.Application;
+import models.ApplicationProperty;
 import play.data.validation.Valid;
 import play.mvc.Controller;
+import core.ConfigurationManager;
+import core.ProcessManager;
 
 public class ApplicationController extends Controller {
 
@@ -32,12 +37,20 @@ public class ApplicationController extends Controller {
 			notFound();
 		}
 		else {
-			render(application);
+			final List<ApplicationProperty> properties = ApplicationProperty.find("application = ? and priority > 99 order by priority", application).fetch();
+			render(application, properties);
 		}
 	}
 	
-	public static void edit() {
-		
+	public static void edit(final Long id, final String configuration) throws Exception {
+		final Application application = Application.findById(id);
+		if(application == null) {
+			notFound();
+		}
+		else {
+			ConfigurationManager.readCurrentConfigurationFromString(application, configuration);
+			show(id);
+		}
 	}
 	
 	public static void create(@Valid final Application application) throws Exception {

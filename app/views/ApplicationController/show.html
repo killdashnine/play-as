@@ -1,2 +1,26 @@
 #{extends 'main.html' /}
-#{set title:'Home' /}
+#{set title:'Application configuration' /}
+<h5>Application ${application.pid}:</h5>
+<ul>
+	<li>
+		#{if application.running == false}
+		   	<a href="@{ApplicationController.start(application.id)}">start</a>
+		#{/if}
+		#{else}
+			<a href="@{ApplicationController.stop(application.id)}" style="color: red">stop</a> 
+		#{/else}
+	</li>
+	<li>
+		<a href="@{ApplicationController.update(application.id)}">update</a>
+	</li>
+</ul>
+<h5>application.conf:</h5>
+#{form @ApplicationController.edit(application.id)}
+<textarea name="configuration" rows="${properties.size()}" cols="100">
+#{list items:properties, as:'property'}
+${property.key} = ${property.value}
+#{/list}
+</textarea>
+<br/>
+<input type="submit" value="save"/>
+#{/form}

@@ -34,5 +34,17 @@ public class ApplicationProperty extends Model {
 	
 	public String key;
 	public String value;
-	public Mode mode;
+	
+	public Integer priority;
+	
+	public ApplicationProperty() {
+		// no arg constructor
+	}
+	
+	public ApplicationProperty(final Application application, final Integer priority, final String key, final String value) {
+		this.key = key;
+		this.value = value;
+		this.application = application;
+		this.priority = priority;
+	}
 }

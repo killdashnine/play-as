@@ -6,6 +6,7 @@ GET		/application/{id}/stop					ApplicationController.stop
 GET		/application/{id}/start					ApplicationController.start
 GET		/application/{id}/update				ApplicationController.update
 POST	/applications							ApplicationController.create
+PUT		/application/{id}						ApplicationController.edit
 
 GET     /public/                                staticDir:public
 

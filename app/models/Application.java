@@ -36,7 +36,7 @@ import play.data.validation.Required;
 import play.db.jpa.Model;
 import scm.VersionControlSystemFactory;
 import scm.VersionControlSystemFactory.VersionControlSystemType;
-import core.PlayUtils;
+import core.ConfigurationManager;
 import core.ProcessManager;
 import core.ProcessManager.ProcessType;
 
@@ -68,7 +68,7 @@ public class Application extends Model {
 	 * Configuration properties used for application.conf generation
 	 */
 	@OneToMany(fetch=FetchType.EAGER, mappedBy="application")
-	public Set<ApplicationProperty> properties = new HashSet<ApplicationProperty>();
+	public Set<ApplicationProperty> properties;
 		
 	/**
 	 * Start the application
@@ -83,7 +83,7 @@ public class Application extends Model {
 		}
 		
 		// generate application.conf
-		PlayUtils.generateConfigurationFile(this);
+		ConfigurationManager.generateConfigurationFiles(this);
 		
 		ProcessManager.executeProcess(pid, "play start apps/" + pid);
 		Logger.info("Started %s", pid);
@@ -156,7 +156,7 @@ public class Application extends Model {
 		checkedOut = true;
 		save();
 		
-		// TODO load properties from existing application.conf file
+		ConfigurationManager.readCurrentConfigurationFromFile(this);
 	}
 	
 	public void clean() throws Exception {
