@@ -17,12 +17,12 @@
 
 package models;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import play.Play.Mode;
 import play.db.jpa.Model;
 
 /**
@@ -41,11 +41,13 @@ public class ApplicationProperty extends Model {
 	/**
 	 * Configuration key
 	 */
+	@Column(length = 100)
 	public String key;
 	
 	/**
 	 * Configuration value
 	 */
+	@Column(length = 100)
 	public String value;
 	
 	/**
