@@ -10,3 +10,6 @@ PUT		/application/{id}						ApplicationController.edit
 
 GET     /public/                                staticDir:public
 
+WS		/application/{id}/log					LogController.application
+WS		/log									LogController.manager
+

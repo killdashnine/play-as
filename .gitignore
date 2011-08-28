@@ -1,3 +1,9 @@
+# Play tmp directory
 tmp/
-eclipse/classes/
+
+# Ignore eclipse folders and files
+eclipse/
+.classpath
+
+# Ignore database directory
 db/

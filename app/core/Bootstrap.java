@@ -39,8 +39,8 @@ public class Bootstrap extends Job {
 		
 		if(Play.mode == Mode.DEV) {
 			Logger.info("Loading fixtures");
-			Fixtures.deleteAll();
-			Fixtures.load("test-data.yml");
+			Fixtures.deleteDatabase();
+			Fixtures.loadModels("test-data.yml");
 
 			final List<Application> applications = Application.all().fetch();
 			for(final Application application : applications) {
