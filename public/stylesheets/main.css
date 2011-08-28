@@ -28,3 +28,11 @@ a:hover {
 .error {
 	color: red;
 }
+
+#log {
+	overflow: scroll;
+	width: 1024px;
+	height: 500px;
+	background-color: #000;
+	color: #fff;
+}
