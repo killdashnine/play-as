@@ -43,7 +43,6 @@ public class GitVersionControlSystem implements VersionControlSystem {
 		final String checkoutPid = "git-checkout-" + pid;
 		final StringBuffer output = new StringBuffer();
 		output.append(ProcessManager.executeCommand(checkoutPid, "git --git-dir=apps/" + pid + "/.git --work-tree=apps/" + pid + " checkout -- conf/application.conf"));
-		output.append(ProcessManager.executeCommand(checkoutPid, "git --git-dir=apps/" + pid + "/.git --work-tree=apps/" + pid + " checkout -- conf/log4j.properties"));
 		return output.toString(); 
 	}
 }

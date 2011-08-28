@@ -34,6 +34,7 @@ import play.Logger;
 import play.Play.Mode;
 import play.data.validation.Required;
 import play.db.jpa.Model;
+import scm.VersionControlSystem;
 import scm.VersionControlSystemFactory;
 import scm.VersionControlSystemFactory.VersionControlSystemType;
 import core.ConfigurationManager;
@@ -154,11 +155,10 @@ public class Application extends Model {
 			ProcessManager.waitForCompletion(this);
 		}
 		
-		// cleanup working directory
-		VersionControlSystemFactory.getVersionControlSystem(vcsType).cleanup(pid);
 		
-		// pull changes from git
-		VersionControlSystemFactory.getVersionControlSystem(vcsType).update(pid);
+		final VersionControlSystem vcs = VersionControlSystemFactory.getVersionControlSystem(vcsType);
+		vcs.cleanup(pid); // cleanup working directory
+		vcs.update(pid); // pull changes from git
 		
 		// start the application, forced
 		if(wasRunning) {

@@ -37,8 +37,9 @@ public class Bootstrap extends Job {
 	public void doJob() throws Exception {
 		Logger.info("Bootstrapping Play AS");
 		
-		if(Play.mode == Mode.DEV && Application.count() == 0) {
+		if(Play.mode == Mode.DEV) {
 			Logger.info("Loading fixtures");
+			Fixtures.deleteAllModels();
 			Fixtures.loadModels("test-data.yml");
 
 			final List<Application> applications = Application.all().fetch();

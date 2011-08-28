@@ -5,6 +5,7 @@ tmp/
 eclipse/
 .classpath
 .project
+.settings
 
 # Ignore database directory
 db/
