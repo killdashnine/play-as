@@ -24,3 +24,19 @@ ${property.key} = ${property.value}
 <br/>
 <input type="submit" value="save"/>
 #{/form}
+
+<h5>Application log (You'll need to have a WebSockets enabled browser):</h5>
+<div id="log" rows="50" cols="100">
+</div>
+
+<script type="text/javascript">
+    // Create a socket
+    var Socket = "MozWebSocket" in window ? MozWebSocket : WebSocket;
+    var socket = new Socket('@@{LogController.application(application.id)}');
+    
+    // Message received on the socket
+    socket.onmessage = function(event) {
+        $('#log').append(event.data);
+        $('#log').scrollTo('max', { axis:'y' } );
+    }
+</script>
