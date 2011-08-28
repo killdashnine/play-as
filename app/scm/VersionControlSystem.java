@@ -17,9 +17,28 @@
 
 package scm;
 
+/**
+ * Interface for a Version Control System (VCS)
+ *
+ */
 public interface VersionControlSystem {
 
+	/**
+	 * Checkout an application
+	 * @param pid Program ID
+	 * @param url URL to be checked out
+	 */
 	public String checkout(final String pid, final String url) throws Exception;
+	
+	/**
+	 * Pull the latest changes from the remote VCS
+	 * @param pid Program ID
+	 */
 	public String update(final String pid) throws Exception;
+	
+	/**
+	 * Remove all changes made by the application server
+	 * @param pid Program ID
+	 */
 	public String cleanup(final String pid) throws Exception;
 }

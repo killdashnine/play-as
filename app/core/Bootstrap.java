@@ -27,7 +27,10 @@ import play.jobs.Job;
 import play.jobs.OnApplicationStart;
 import play.test.Fixtures;
 
-@OnApplicationStart()
+/**
+ * Bootstrap class for loading test data when running in DEV mode
+ */
+@OnApplicationStart
 public class Bootstrap extends Job {
 
 	@Override

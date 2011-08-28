@@ -16,12 +16,22 @@
 
 package scm;
 
+/**
+ * Factory class for creating VCSs
+ */
 public class VersionControlSystemFactory {
 
+	/**
+	 * VCS types supported
+	 */
 	public enum VersionControlSystemType {
 		GIT
 	}
 	
+	/**
+	 * Get a VCS instance for the given type
+	 * @param type VCS type
+	 */
 	public static VersionControlSystem getVersionControlSystem(final VersionControlSystemType type) throws Exception {
 		switch(type) {
 			case GIT:

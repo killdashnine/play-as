@@ -33,54 +33,42 @@ import play.jobs.Every;
 import play.jobs.Job;
 
 /**
- * TODO make paths configurable for binaries, so we become multi platform
+ * Process management for all spawned subprocesses.
  */
 @Every("1s")
 public class ProcessManager extends Job {
 	
+	/**
+	 * Process type
+	 */
 	public enum ProcessType {
-		PLAY, COMMAND
-	}
-	
-	static {
-		//
-		// THIS DOES NOT WORK WHEN JVM IS KILLED (example: kill -9)
-		//
-		// See: http://stackoverflow.com/questions/191215/how-to-stop-java-process-gracefully
-		//
-		final Runnable shutdownHook = new Runnable() {
-			@Override
-			public void run() {
-				Logger.info("Shutdown hook called");
-				synchronized (processes) {
-					for(final Entry<String, Process> entry : processes.entrySet()) {
-						try {
-							Logger.info("Killing %s", entry.getKey());
-							final Process process = entry.getValue();
-							process.destroy();
-							process.waitFor();
-						}
-						catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				}
-				Logger.info("Shutdown hook complete");
-			}
-		};
-		
-		Runtime.getRuntime().addShutdownHook(new Thread(shutdownHook));
+		PLAY, // a Play! framework application 
+		COMMAND // a normal command e.g. git
 	}
 
+	/**
+	 * Map of spawned subprocesses
+	 */
 	private static Map<String, Process> processes = new HashMap<String, Process>();
 	
+	/**
+	 * Execute a new subprocess
+	 * @param pid Program ID
+	 * @param command The command to execute
+	 */
 	public static Process executeProcess(final String pid, final String command) throws Exception {
 		return executeProcess(pid, command, null);
 	}
 	
+	/**
+	 * Execute a new subprocess from a given path
+	 * @param pid Program ID
+	 * @param command The command to execute
+	 * @param workingPath The path to execute the command from (may be null)
+	 */
 	public static Process executeProcess(final String pid, final String command, File workingPath) throws Exception {
 		synchronized (processes) {
-			
+			// we don't allow multiple pids running at the same time
 			if(processes.containsKey(pid)) {
 				throw new Exception("pid: " + pid + " already in use");
 			}
@@ -117,12 +105,17 @@ public class ProcessManager extends Job {
 		}
 	}
 	
+	/**
+	 * Wait for an application to complete
+	 * @param application The application to wait for
+	 */
 	public static void waitForCompletion(final Application application)
 			throws Exception, InterruptedException {
 		final boolean status = application.isRunning();
 		
 		Logger.info("Waiting for completion, status: %s", status);
 		
+		// Wait a bit
 		int counter = 0;
 		while(application.isRunning() == status && counter < ProcessManager.MAXIMUM_WAIT_TIME) {
 			Thread.sleep(1000);
@@ -149,6 +142,13 @@ public class ProcessManager extends Job {
 		return executeCommand(pid, command, log, null);
 	}
 	
+	/**
+	 * Execute a command
+	 * @param pid The program ID
+	 * @param command The command to execute
+	 * @param log Log to logger?
+	 * @param workingPath Path to execute the command from
+	 */
 	public static synchronized String executeCommand(final String pid,
 			final String command, boolean log, final File workingPath) throws Exception {
 		
@@ -180,6 +180,12 @@ public class ProcessManager extends Job {
 		return output.toString();
 	}
 
+	/**
+	 * Read stdout and stderr
+	 * @param log Log to Play! logger?
+	 * @param reader Used for reading from the process
+	 * @param output Output buffer to store output in
+	 */
 	private static void readCommandOutput(boolean log,
 			final BufferedReader reader, final StringBuffer output)
 			throws IOException {
@@ -195,7 +201,10 @@ public class ProcessManager extends Job {
 		}
 	}
 
-	public static void manageList() {
+	/**
+	 * Manage the list of spawned subprocesses
+	 */
+	private static void manageList() {
 		/* pids to remove */
 		final List<String> pids = new LinkedList<String>();
 		
@@ -238,6 +247,11 @@ public class ProcessManager extends Job {
 		}
 	}
 	
+	/**
+	 * Check whether a process is running
+	 * @param pid The program ID
+	 * @param type The application type
+	 */
 	public static boolean isProcessRunning(final String pid, final ProcessType type) throws Exception {
 		if(type == ProcessType.COMMAND) {
 			synchronized (processes) {
@@ -258,6 +272,7 @@ public class ProcessManager extends Job {
 		}
 		else if(type == ProcessType.PLAY) {
 			try {
+				// If the container was killed, we are still able to re-attach to the still running "childs"
 				executeCommand("check-" + pid, "play pid apps/" + pid, false);
 				return true;
 			} catch (Exception e) {

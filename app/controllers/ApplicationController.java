@@ -30,7 +30,7 @@ import core.ConfigurationManager;
 import core.ProcessManager;
 
 public class ApplicationController extends Controller {
-
+	
 	public static void show(final Long id) {
 		final Application application = Application.findById(id);
 		if(application == null) {

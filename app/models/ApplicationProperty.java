@@ -25,16 +25,32 @@ import javax.persistence.Table;
 import play.Play.Mode;
 import play.db.jpa.Model;
 
+/**
+ * JPA entity used for specifying a configuration property for an application 
+ */
 @Entity
 @Table(name="application_properties")
 public class ApplicationProperty extends Model {
 
+	/**
+	 * The application this property is for
+	 */
 	@ManyToOne(fetch=FetchType.LAZY)
 	public Application application;
 	
+	/**
+	 * Configuration key
+	 */
 	public String key;
+	
+	/**
+	 * Configuration value
+	 */
 	public String value;
 	
+	/**
+	 * Priority (used for ordering lines in the exported file)
+	 */
 	public Integer priority;
 	
 	public ApplicationProperty() {

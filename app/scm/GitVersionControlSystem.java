@@ -21,20 +21,29 @@ import java.io.File;
 
 import core.ProcessManager;
 
+/**
+ * Implementation for a GIT Version Control System
+ */
 public class GitVersionControlSystem implements VersionControlSystem {
 
+	@Override
 	public String checkout(final String pid, final String gitUrl) throws Exception {
 		final String checkoutPid = "git-checkout-" + pid;
 		return ProcessManager.executeCommand(checkoutPid, "git clone " + gitUrl + " apps/" + pid);
 	}
 	
+	@Override
 	public String update(final String pid) throws Exception {
 		final String checkoutPid = "git-pull-" + pid;
 		return ProcessManager.executeCommand(checkoutPid, "git pull origin master", new File("apps/" + pid));
 	}
 	
+	@Override
 	public String cleanup(final String pid) throws Exception {
 		final String checkoutPid = "git-checkout-" + pid;
-		return ProcessManager.executeCommand(checkoutPid, "git --git-dir=apps/" + pid + "/.git --work-tree=apps/" + pid + " checkout -- conf/application.conf");
+		final StringBuffer output = new StringBuffer();
+		output.append(ProcessManager.executeCommand(checkoutPid, "git --git-dir=apps/" + pid + "/.git --work-tree=apps/" + pid + " checkout -- conf/application.conf"));
+		output.append(ProcessManager.executeCommand(checkoutPid, "git --git-dir=apps/" + pid + "/.git --work-tree=apps/" + pid + " checkout -- conf/log4j.properties"));
+		return output.toString(); 
 	}
 }

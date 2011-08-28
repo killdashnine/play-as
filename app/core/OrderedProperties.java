@@ -22,7 +22,9 @@ import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
 
-
+/**
+ * Special Properties class able to maintain line order for properties file
+ */
 public class OrderedProperties extends Properties {
 
     private final LinkedHashSet<Object> keys = new LinkedHashSet<Object>();

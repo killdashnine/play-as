@@ -40,26 +40,47 @@ import core.ConfigurationManager;
 import core.ProcessManager;
 import core.ProcessManager.ProcessType;
 
+/**
+ * JPA entity for defining an application
+ */
 @Entity
 @Table(name="applications")
 public class Application extends Model {
 	
+	/**
+	 * Program ID
+	 */
 	@Required
 	@Column(updatable = false, unique = true, nullable = false)
 	public String pid;
 	
+	/**
+	 * Type of VCS used for checkout
+	 */
 	@Column(updatable = false, nullable = false)
 	@Required
 	public VersionControlSystemType vcsType;
 	
+	/**
+	 * URL to be used for the VCS
+	 */
 	@Column(updatable = false, nullable = false)
 	@Required
 	public String vcsUrl;
 	
+	/**
+	 * Is the application checked out by the container?
+	 */
 	public Boolean checkedOut = false;
 	
+	/**
+	 * Is the application enabled? i.e. started/stopped
+	 */
 	public Boolean enabled;
 	
+	/**
+	 * What Play! mode should be used for running the application
+	 */
 	@Column(updatable = true, nullable = false)
 	@Required
 	public Mode mode;
@@ -97,11 +118,17 @@ public class Application extends Model {
 		Logger.info("Stopped %s", pid);
 	}
 	
+	/**
+	 * Restart the application
+	 */
 	public void restart() throws Exception {
 		stop();
 		start(false);
 	}
 	
+	/**
+	 * Is the application running?
+	 */
 	@Transient
 	public boolean isRunning() throws Exception {
 		if(!checkedOut) {
@@ -112,8 +139,7 @@ public class Application extends Model {
 	}
 	
 	/**
-	 * Pull most recent version from SCM
-	 * @throws Exception 
+	 * Pull most recent version from VCS
 	 */
 	public void pull() throws Exception {
 		final boolean wasRunning = isRunning();
@@ -159,6 +185,9 @@ public class Application extends Model {
 		ConfigurationManager.readCurrentConfigurationFromFile(this);
 	}
 	
+	/**
+	 * Removes checkout after deleting an application
+	 */
 	public void clean() throws Exception {
 		Logger.info("Removing SCM checkout for %s", pid);
 		
