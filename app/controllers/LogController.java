@@ -36,7 +36,7 @@ public class LogController extends WebSocketController {
 		else {
 			try {
 				final ApplicationProperty logFileProperty = ApplicationProperty.findLogFileProperty(application);
-				logToOutbound(logFileProperty.value);
+				logToOutbound(logFileProperty.value, false);
 			}
 			catch(FileNotFoundException e) {
 				// ignore, logs may have been removed
@@ -45,11 +45,11 @@ public class LogController extends WebSocketController {
 	}
 	
 	public static void manager() throws Exception {
-		logToOutbound("logs/play-as.log");
+		logToOutbound("logs/play-as.log", true);
 	}
 
-	private static void logToOutbound(String filePath) throws Exception, IOException {
-		final LogGenerator generator = new LogGenerator(filePath);
+	private static void logToOutbound(String filePath, boolean skipToEnd) throws Exception, IOException {
+		final LogGenerator generator = new LogGenerator(filePath, skipToEnd);
 		try {
 			while(inbound.isOpen()) {
 				final Promise<String> promise = generator.now();

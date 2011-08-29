@@ -23,6 +23,10 @@ import play.mvc.Controller;
 public class ManagerController extends Controller {
 
     public static void index() {
+    	render();
+    }
+    
+    public static void status() {
     	final List<ApplicationController> applications = models.Application.all().fetch();
         render(applications);
     }

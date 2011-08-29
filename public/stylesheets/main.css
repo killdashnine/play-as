@@ -19,7 +19,8 @@ td {
 
 a, a:visited {
 	color: #02246b;
-	text-decoration:none;	
+	text-decoration:none;
+	cursor: pointer;
 }
 a:hover {
 	text-decoration:underline;

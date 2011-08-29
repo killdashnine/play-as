@@ -1,40 +1,7 @@
 #{extends 'main.html' /}
 #{set title:'Applications' /}
 <h5>All applications:</h5>
-<table>
-	<thead>
-		<tr>
-			<th>Application</th>
-			<th>Mode</th>
-			<th>Status</th>
-			<th>Actions</th>
-		</tr>
-	</thead>
-	<tbody>
-		#{list items:applications, as:'application'}
-		   	<tr>
-		   		<td><a href="@{ApplicationController.show(application.id)}">${application.pid}</a></td>
-		   		<td>${application.mode}</td>
-		   		<td>
-		   			#{if application.running == true}
-		   				<span style="color: green">running</span>
-		   			#{/if}
-		   			#{else}
-		   				<span style="color: red">stopped</span> 
-		   			#{/else}
-		   		<td>
-		   			#{if application.running == false}
-		   				<a href="@{ApplicationController.start(application.id)}">start</a>
-		   			#{/if}
-		   			#{else}
-		   				<a href="@{ApplicationController.stop(application.id)}" style="color: red">stop</a> 
-		   			#{/else}
-		   			<a href="@{ApplicationController.update(application.id)}">update</a>
-		   		</td>
-		   	</tr>
-		#{/list}
-	</tbody>
-</table>
+<div id="status"></div>
 <br/>
 <h5>Checkout application:</h5>
 #{form @ApplicationController.create()}
@@ -101,4 +68,18 @@
         $('#log').append(event.data);
         $('#log').scrollTo('max', { axis:'y' } );
     }
+
+    $(document).ready(function() {
+		// load status div
+		$('#status').load('@{ManagerController.status()}');
+
+		// reload
+      	setInterval(function() {
+        	$("#status").load('@{ManagerController.status()}');
+      	}, 500);
+
+      	// disable cache
+      	$.ajaxSetup({ cache: false });
+   });
+    
 </script>

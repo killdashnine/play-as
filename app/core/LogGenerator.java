@@ -32,10 +32,14 @@ public class LogGenerator extends Job {
 	private InputStreamReader inputStreamReader;
 	private FileInputStream fileInputStream;
 	
-	public LogGenerator(final String filePath) throws Exception {
+	public LogGenerator(final String filePath, boolean skipToEnd) throws Exception {
 		fileInputStream = new FileInputStream (filePath);
 		inputStreamReader = new InputStreamReader(fileInputStream, "utf-8");
 		bufferedReader = new BufferedReader(inputStreamReader);
+		
+		if(skipToEnd) {
+			bufferedReader.skip(fileInputStream.available()); // skip to end
+		}
 	}
 	
 	public String doJobWithResult() throws Exception {

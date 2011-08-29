@@ -1,0 +1,46 @@
+<table>
+	<thead>
+		<tr>
+			<th>Application</th>
+			<th>Mode</th>
+			<th>Status</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+		#{list items:applications, as:'application'}
+		   	<tr>
+		   		<td><a href="@{ApplicationController.show(application.id)}">${application.pid}</a></td>
+		   		<td>${application.mode}</td>
+		   		<td>
+		   			#{if application.running == true}
+		   				<span style="color: green">running</span>
+		   			#{/if}
+		   			#{else}
+		   				<span style="color: red">stopped</span> 
+		   			#{/else}
+		   		<td>
+		   			#{if application.running == false}
+		   				<a id="start" name="${application.id}">start</a>
+		   			#{/if}
+		   			#{else}
+		   				<a id="stop" name="${application.id}" style="color: red">stop</a> 
+		   			#{/else}
+		   			<a id="update" name="${application.id}">update</a>
+		   		</td>
+		   	</tr>
+		#{/list}
+	</tbody>
+</table>
+
+<script type="text/javascript">
+$('#start').click(function() {
+    $.get('/application/' + $(this).attr('name') + '/start');
+});
+$('#stop').click(function() {
+    $.get('/application/' + $(this).attr('name') + '/stop');
+});
+$('#update').click(function() {
+    $.get('/application/' + $(this).attr('name') + '/update');
+});
+</script>

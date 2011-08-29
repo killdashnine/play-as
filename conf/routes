@@ -1,5 +1,6 @@
 
 GET     /                                       ManagerController.index
+GET		/status									ManagerController.status
 
 GET		/application/{id}						ApplicationController.show
 GET		/application/{id}/stop					ApplicationController.stop
