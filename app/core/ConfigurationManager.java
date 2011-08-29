@@ -21,6 +21,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +66,12 @@ public class ConfigurationManager {
 		Logger.info("Creating configuration file for application %s", application.pid);
 		final Properties properties = new OrderedProperties();
 		final Properties logProperties = new OrderedProperties();
+		
+		// #15 update log file 
+		final ApplicationProperty logFileProperty = ApplicationProperty.findLogFileProperty(application);
+		logFileProperty.value = "logs/" + application.pid + "_" + new SimpleDateFormat("yyyyMMddhhmmss").format(new Date()) + ".log";
+		logFileProperty.save();
+		
 		final List<ApplicationProperty> applicationProperties = ApplicationProperty.find("application = ? order by priority", application).fetch();
 		for(final ApplicationProperty property : applicationProperties) {
 			// logging

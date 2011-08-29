@@ -22,6 +22,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import play.db.jpa.Model;
 
@@ -64,5 +65,10 @@ public class ApplicationProperty extends Model {
 		this.value = value;
 		this.application = application;
 		this.priority = priority;
+	}
+	
+	@Transient
+	public static ApplicationProperty findLogFileProperty(final Application application) {
+		return (ApplicationProperty) find("application = ? and key = ?", application, "log4j.appender.Rolling.File").first();
 	}
 }

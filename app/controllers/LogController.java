@@ -16,9 +16,11 @@
 
 package controllers;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import models.Application;
+import models.ApplicationProperty;
 import play.Logger;
 import play.libs.F.Promise;
 import play.mvc.WebSocketController;
@@ -32,7 +34,13 @@ public class LogController extends WebSocketController {
 			disconnect();
 		}
 		else {
-			logToOutbound("logs/" + application.pid + ".log");
+			try {
+				final ApplicationProperty logFileProperty = ApplicationProperty.findLogFileProperty(application);
+				logToOutbound(logFileProperty.value);
+			}
+			catch(FileNotFoundException e) {
+				// ignore, logs may have been removed
+			}
 		}
 	}
 	
