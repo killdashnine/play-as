@@ -36,7 +36,6 @@ public class LogGenerator extends Job {
 		fileInputStream = new FileInputStream (filePath);
 		inputStreamReader = new InputStreamReader(fileInputStream, "utf-8");
 		bufferedReader = new BufferedReader(inputStreamReader);
-		bufferedReader.skip(fileInputStream.available()); // skip to end
 	}
 	
 	public String doJobWithResult() throws Exception {
