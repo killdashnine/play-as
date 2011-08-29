@@ -129,8 +129,11 @@ public class ConfigurationManager {
 		
 		// cache existing properties
 		final Map<String, ApplicationProperty> existingProperties = new HashMap<String, ApplicationProperty>();
-		for(final ApplicationProperty property : application.properties) {
-			existingProperties.put(property.key, property);
+		
+		if(application.properties != null) {
+			for(final ApplicationProperty property : application.properties) {
+				existingProperties.put(property.key, property);
+			}
 		}
 		
 		int priority = 100; // safe margin

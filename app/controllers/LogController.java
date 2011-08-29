@@ -41,13 +41,17 @@ public class LogController extends WebSocketController {
 	}
 
 	private static void logToOutbound(String filePath) throws Exception, IOException {
-		Logger.info("WebSocket client connected");
 		final LogGenerator generator = new LogGenerator(filePath);
-		while(inbound.isOpen()) {
-			final Promise<String> promise = generator.now();
-			final String data = await(promise);
-			outbound.send(data);
-	    }
+		try {
+			while(inbound.isOpen()) {
+				final Promise<String> promise = generator.now();
+				final String data = await(promise);			
+				outbound.send(data);
+		    }
+		}
+		catch(Exception e) {
+			// swallow
+		}
 		generator.close();
 	}
 }

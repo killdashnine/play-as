@@ -14,6 +14,12 @@
 		<a href="@{ApplicationController.update(application.id)}">update</a>
 	</li>
 </ul>
+
+<h5>Application log (You'll need to have a WebSockets enabled browser):</h5>
+<div id="log" rows="50" cols="100">
+</div>
+<br/>
+
 <h5>application.conf:</h5>
 #{form @ApplicationController.edit(application.id)}
 <textarea name="configuration" rows="${properties.size()}" cols="100">
@@ -24,10 +30,6 @@ ${property.key} = ${property.value}
 <br/>
 <input type="submit" value="save"/>
 #{/form}
-
-<h5>Application log (You'll need to have a WebSockets enabled browser):</h5>
-<div id="log" rows="50" cols="100">
-</div>
 
 <script type="text/javascript">
     // Create a socket

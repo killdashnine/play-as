@@ -36,7 +36,7 @@ public class LogGenerator extends Job {
 		fileInputStream = new FileInputStream (filePath);
 		inputStreamReader = new InputStreamReader(fileInputStream, "utf-8");
 		bufferedReader = new BufferedReader(inputStreamReader);
-		//bufferedReader.skip(fileInputStream.available()); // skip to end
+		bufferedReader.skip(fileInputStream.available() - 500); // skip to end
 		// NOTE: We need to skip some, but not all
 	}
 	
