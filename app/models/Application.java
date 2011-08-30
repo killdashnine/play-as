@@ -140,11 +140,10 @@ public class Application extends Model {
 	 */
 	@Transient
 	public boolean isRunning() throws Exception {
-		if(!checkedOut) {
-			throw new Exception("Application " + pid + " has not yet been checked out from SCM");
+		if(checkedOut) {
+			return ProcessManager.isProcessRunning(pid, ProcessType.PLAY);
 		}
-		
-		return ProcessManager.isProcessRunning(pid, ProcessType.PLAY);
+		return false;
 	}
 	
 	/**
