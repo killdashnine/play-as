@@ -48,7 +48,7 @@ public class ApplicationProperty extends Model {
 	/**
 	 * Configuration value
 	 */
-	@Column(length = 100)
+	@Column(length = 200)
 	public String value;
 	
 	/**
