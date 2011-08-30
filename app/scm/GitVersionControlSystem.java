@@ -19,6 +19,8 @@ package scm;
 
 import java.io.File;
 
+import play.Play;
+
 import core.ProcessManager;
 
 /**
@@ -26,23 +28,29 @@ import core.ProcessManager;
  */
 public class GitVersionControlSystem implements VersionControlSystem {
 
+	public String getFullGitPath() {
+		final String path = Play.configuration.getProperty("path.git");
+		// return setting from application.conf or assume command is on the instance's path
+		return path == null || path.isEmpty() ? "git" : path;
+	}
+	
 	@Override
 	public String checkout(final String pid, final String gitUrl) throws Exception {
 		final String checkoutPid = "git-checkout-" + pid;
-		return ProcessManager.executeCommand(checkoutPid, "git clone " + gitUrl + " apps/" + pid);
+		return ProcessManager.executeCommand(checkoutPid, getFullGitPath() + " clone " + gitUrl + " apps/" + pid);
 	}
 	
 	@Override
 	public String update(final String pid) throws Exception {
 		final String checkoutPid = "git-pull-" + pid;
-		return ProcessManager.executeCommand(checkoutPid, "git pull origin master", new File("apps/" + pid));
+		return ProcessManager.executeCommand(checkoutPid, getFullGitPath() + " pull origin master", new File("apps/" + pid));
 	}
 	
 	@Override
 	public String cleanup(final String pid) throws Exception {
 		final String checkoutPid = "git-checkout-" + pid;
 		final StringBuffer output = new StringBuffer();
-		output.append(ProcessManager.executeCommand(checkoutPid, "git --git-dir=apps/" + pid + "/.git --work-tree=apps/" + pid + " checkout -- conf/application.conf"));
+		output.append(ProcessManager.executeCommand(checkoutPid, getFullGitPath() + " --git-dir=apps/" + pid + "/.git --work-tree=apps/" + pid + " checkout -- conf/application.conf"));
 		return output.toString(); 
 	}
 }

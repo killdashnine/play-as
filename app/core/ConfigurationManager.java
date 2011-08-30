@@ -161,18 +161,15 @@ public class ConfigurationManager {
 				property = new ApplicationProperty();
 				property.application = application;
 				property.key = key;
-				property.value = value;
-				property.priority = priority;
 			}
 			else {
 				existingProperties.remove(key);
-				
-				// update priority
-				property.priority = priority;
 			}
 			
 			Logger.info("config(%s): %s = %s", application.pid, key, value);
 			
+			property.value = value;
+			property.priority = priority;
 			property.save();
 			priority++;
 		}
@@ -180,6 +177,11 @@ public class ConfigurationManager {
 		// remove deleted properties
 		if(existingProperties.size() > 0) {
 			for(final ApplicationProperty property : existingProperties.values()) {
+				if("application.mode".equals(property.key) || property.key.startsWith("log4j")) {
+					// ignore since the AS is responsible for generating this
+					continue;
+				}
+				
 				property.delete();
 				Logger.info("config(%s): deleted %s", application.pid, property.key);
 			}

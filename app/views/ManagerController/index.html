@@ -76,7 +76,7 @@
 		// reload
       	setInterval(function() {
         	$("#status").load('@{ManagerController.status()}');
-      	}, 500);
+      	}, 1000);
 
       	// disable cache
       	$.ajaxSetup({ cache: false });

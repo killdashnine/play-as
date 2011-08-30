@@ -73,13 +73,7 @@ public class ProcessManager extends Job {
 				throw new Exception("pid: " + pid + " already in use");
 			}
 			
-			Process process = null;
-			if(workingPath != null) {
-				process = Runtime.getRuntime().exec(command, null, workingPath);
-			}
-			else {
-				process = Runtime.getRuntime().exec(command);
-			}
+			final Process process = Runtime.getRuntime().exec(command, null, workingPath);
 			processes.put(pid, process);
 			
 			return process;
