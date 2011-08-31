@@ -35,7 +35,7 @@ import play.jobs.Job;
 /**
  * Process management for all spawned subprocesses.
  */
-@Every("1s")
+@Every("30s")
 public class ProcessManager extends Job {
 	
 	/**
