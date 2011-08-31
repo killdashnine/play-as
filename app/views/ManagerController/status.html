@@ -21,12 +21,12 @@
 		   			#{/else}
 		   		<td>
 		   			#{if application.running == false}
-		   				<a id="start" name="${application.id}">start</a>
+		   				<a onclick="start(${application.id})">start</a>
 		   			#{/if}
 		   			#{else}
-		   				<a id="stop" name="${application.id}" style="color: red">stop</a> 
+		   				<a onclick="stop(${application.id})" style="color: red">stop</a> 
 		   			#{/else}
-		   			<a id="update" name="${application.id}">update</a>
+		   			<a onclick="update(${application.id})">update</a>
 		   		</td>
 		   	</tr>
 		#{/list}
@@ -34,13 +34,16 @@
 </table>
 
 <script type="text/javascript">
-$('#start').click(function() {
-    $.get('/application/' + $(this).attr('name') + '/start');
-});
-$('#stop').click(function() {
-    $.get('/application/' + $(this).attr('name') + '/stop');
-});
-$('#update').click(function() {
-    $.get('/application/' + $(this).attr('name') + '/update');
-});
+
+function stop(id) {
+	$.get('/application/' + id + '/stop');
+}
+
+function start(id) {
+    $.get('/application/' + id + '/start');
+}
+
+function update(id) {
+    $.get('/application/' + id + '/update');
+}
 </script>
