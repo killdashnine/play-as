@@ -9,3 +9,6 @@ eclipse/
 
 # Ignore database directory
 db/
+
+# Ignore netbeans folder
+/nbproject
