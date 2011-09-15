@@ -77,9 +77,6 @@ public class ApplicationController extends Controller {
 		else {
 			application.enabled = true;
 			application.save();
-			application.em().getTransaction().commit(); // close transaction to prevent deadlock
-			
-			ProcessManager.waitForCompletion(application);
 			
 			ManagerController.index();
 		}
@@ -94,10 +91,7 @@ public class ApplicationController extends Controller {
 		else {
 			application.enabled = false;
 			application.save();
-			application.em().flush();  // close transaction to prevent deadlock
-			
-			ProcessManager.waitForCompletion(application);
-			
+
 			ManagerController.index();
 		}
 	}

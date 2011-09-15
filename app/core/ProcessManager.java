@@ -26,9 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.persistence.Transient;
+
 
 import models.Application;
 import play.Logger;
+import play.Play;
 import play.jobs.Every;
 import play.jobs.Job;
 
@@ -93,12 +96,17 @@ public class ProcessManager extends Job {
 			if(application.enabled && application.checkedOut && !isProcessRunning(application.pid, ProcessType.PLAY)) {
 				application.start(false);
 			}
-			else if(!application.enabled && isProcessRunning(application.pid, ProcessType.PLAY)) {
-				application.stop();
-			}
 		}
 	}
 	
+	@Transient
+	public static String getFullPlayPath() {
+		final String path = Play.configuration.getProperty("path.play");
+		// return setting from application.conf or assume command is on the instance's path
+		return path == null || path.isEmpty() ? "play" : path;
+	}
+
+	@Deprecated
 	/**
 	 * Wait for an application to complete
 	 * @param application The application to wait for
@@ -166,6 +174,9 @@ public class ProcessManager extends Job {
 		synchronized(processes) {
 			processes.remove(pid);
 		}
+		
+		reader.close();
+		errorReader.close();
 	
 		if (process.exitValue() != 0) {
 			throw new Exception("command failed");
@@ -267,7 +278,7 @@ public class ProcessManager extends Job {
 		else if(type == ProcessType.PLAY) {
 			try {
 				// If the container was killed, we are still able to re-attach to the still running "childs"
-				executeCommand("check-" + pid, "play pid apps/" + pid, false);
+				executeCommand("check-" + pid, getFullPlayPath() + " pid apps/" + pid, false);
 				return true;
 			} catch (Exception e) {
 				return false;

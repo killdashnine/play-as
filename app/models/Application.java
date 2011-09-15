@@ -31,7 +31,6 @@ import org.apache.commons.io.FileUtils;
 
 
 import play.Logger;
-import play.Play;
 import play.Play.Mode;
 import play.data.validation.Required;
 import play.db.jpa.Model;
@@ -93,13 +92,6 @@ public class Application extends Model {
 	@OneToMany(fetch=FetchType.EAGER, mappedBy="application")
 	public Set<ApplicationProperty> properties;
 	
-	@Transient
-	public String getFullPlayPath() {
-		final String path = Play.configuration.getProperty("path.play");
-		// return setting from application.conf or assume command is on the instance's path
-		return path == null || path.isEmpty() ? "play" : path;
-	}
-		
 	/**
 	 * Start the application
 	 * @param force Force start?
@@ -115,7 +107,7 @@ public class Application extends Model {
 		// generate application.conf
 		ConfigurationManager.generateConfigurationFiles(this);
 		
-		ProcessManager.executeProcess(pid, getFullPlayPath() + " start apps/" + pid);
+		ProcessManager.executeProcess(pid + "-start", ProcessManager.getFullPlayPath() + " start apps/" + pid);
 		Logger.info("Started %s", pid);
 	}
 	
@@ -123,7 +115,7 @@ public class Application extends Model {
 	 * Stop the application
 	 */
 	public void stop() throws Exception {
-		ProcessManager.executeProcess(pid, getFullPlayPath() + " stop apps/" + pid);
+		ProcessManager.executeProcess(pid + "-stop", ProcessManager.getFullPlayPath() + " stop apps/" + pid);
 		Logger.info("Stopped %s", pid);
 	}
 	
@@ -150,30 +142,13 @@ public class Application extends Model {
 	 * Pull most recent version from VCS
 	 */
 	public void pull() throws Exception {
-		final boolean wasRunning = isRunning();
-		this.enabled = false;
-		this.save();
-		
-		if(wasRunning) {
-			// stop the application
-			stop();
-			
-			// wait for it!
-			ProcessManager.waitForCompletion(this);
-		}
-		
-		
+		// pull before touching the process (or we risk killing a process on updating failure)
 		final VersionControlSystem vcs = VersionControlSystemFactory.getVersionControlSystem(vcsType);
 		vcs.cleanup(pid); // cleanup working directory
 		vcs.update(pid); // pull changes from git
 		
-		// start the application, forced
-		if(wasRunning) {
-			start(true);
-		}
-		
-		this.enabled = wasRunning;
-		this.save();
+		// if the application was already running this will force the process manager to restart the process
+		stop();
 	}
 
 	/**
