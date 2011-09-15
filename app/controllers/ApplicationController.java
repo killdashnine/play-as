@@ -24,6 +24,7 @@ import java.util.List;
 
 import models.Application;
 import models.ApplicationProperty;
+import play.Logger;
 import play.data.validation.Valid;
 import play.mvc.Controller;
 import core.ConfigurationManager;
@@ -78,6 +79,8 @@ public class ApplicationController extends Controller {
 			application.enabled = true;
 			application.save();
 			
+			Logger.info("Requesting to start %s", application.pid);
+			
 			ManagerController.index();
 		}
 	}
@@ -91,6 +94,8 @@ public class ApplicationController extends Controller {
 		else {
 			application.enabled = false;
 			application.save();
+			
+			Logger.info("Requesting to stop %s", application.pid);
 
 			ManagerController.index();
 		}

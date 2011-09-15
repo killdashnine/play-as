@@ -93,8 +93,12 @@ public class ProcessManager extends Job {
 		final List<Application> applications = Application.all().fetch();
 		// check not running applications that should be running
 		for(final Application application : applications) {
-			if(application.enabled && application.checkedOut && !isProcessRunning(application.pid, ProcessType.PLAY)) {
+			final boolean isRunning = isProcessRunning(application.pid, ProcessType.PLAY);
+			if(application.enabled && application.checkedOut && !isRunning) {
 				application.start(false);
+			}
+			else if(!application.enabled && isRunning) {
+				application.stop();
 			}
 		}
 	}
