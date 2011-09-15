@@ -112,4 +112,18 @@ public class ApplicationController extends Controller {
 			ManagerController.index();
 		}
 	}
+	
+	public static void restart(final Long id) throws InterruptedException, Exception {
+		final Application application = Application.findById(id);
+		
+		if(application == null) {
+			notFound();
+		}
+		else {
+			Logger.info("Requesting to restart %s", application.pid);
+			application.restart();
+
+			ManagerController.index();
+		}
+	}
 }

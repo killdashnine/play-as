@@ -123,8 +123,8 @@ public class Application extends Model {
 	 * Restart the application
 	 */
 	public void restart() throws Exception {
+		// if the application still has enabled as true a stop will kill the process and the process manager will restart it
 		stop();
-		start(false);
 	}
 	
 	/**

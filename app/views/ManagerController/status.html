@@ -24,7 +24,8 @@
 		   				<a onclick="start(${application.id})">start</a>
 		   			#{/if}
 		   			#{else}
-		   				<a onclick="stop(${application.id})" style="color: red">stop</a> 
+		   				<a onclick="stop(${application.id})" style="color: red">stop</a>
+		   				<a onclick="restart(${application.id})" style="color: green">restart</a>  
 		   			#{/else}
 		   			<a onclick="update(${application.id})">update</a>
 		   		</td>
@@ -45,5 +46,9 @@ function start(id) {
 
 function update(id) {
     $.get('/application/' + id + '/update');
+}
+
+function restart(id) {
+    $.get('/application/' + id + '/restart');
 }
 </script>
