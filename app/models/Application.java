@@ -107,7 +107,7 @@ public class Application extends Model {
 		// generate application.conf
 		ConfigurationManager.generateConfigurationFiles(this);
 		
-		ProcessManager.executeProcess(pid + "-start", ProcessManager.getFullPlayPath() + " start apps/" + pid);
+		ProcessManager.executeProcess(pid + "-start", ProcessManager.getFullPlayPath() + " start .", new File("apps/" + pid + "/"));
 		Logger.info("Started %s", pid);
 	}
 	
@@ -115,7 +115,7 @@ public class Application extends Model {
 	 * Stop the application
 	 */
 	public void stop() throws Exception {
-		ProcessManager.executeProcess(pid + "-stop", ProcessManager.getFullPlayPath() + " stop apps/" + pid);
+		ProcessManager.executeProcess(pid + "-stop", ProcessManager.getFullPlayPath() + " stop .", new File("apps/" + pid + "/"));
 		Logger.info("Stopped %s", pid);
 	}
 	

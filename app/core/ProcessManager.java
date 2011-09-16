@@ -282,7 +282,7 @@ public class ProcessManager extends Job {
 		else if(type == ProcessType.PLAY) {
 			try {
 				// If the container was killed, we are still able to re-attach to the still running "childs"
-				executeCommand("check-" + pid, getFullPlayPath() + " pid apps/" + pid, false);
+				executeCommand("check-" + pid, getFullPlayPath() + " pid .", false, new File("apps/" + pid + "/"));
 				return true;
 			} catch (Exception e) {
 				return false;

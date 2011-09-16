@@ -16,6 +16,7 @@
 
 package controllers;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -36,7 +37,7 @@ public class LogController extends WebSocketController {
 		else {
 			try {
 				final ApplicationProperty logFileProperty = ApplicationProperty.findLogFileProperty(application);
-				logToOutbound(logFileProperty.value, false);
+				logToOutbound("apps/" + application.pid + "/" + logFileProperty.value, false);
 			}
 			catch(FileNotFoundException e) {
 				// ignore, logs may have been removed
