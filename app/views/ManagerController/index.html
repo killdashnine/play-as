@@ -25,6 +25,7 @@
 			<td>
 				<select name="application.vcsType">
 					<option ${flash['application.vcsType'] == 'GIT' ? 'selected=\"selected\"'.raw() : ''} value="GIT">GIT</option>
+					<option ${flash['application.vcsType'] == 'SVN' ? 'selected=\"selected\"'.raw() : ''} value="SVN">SVN</option>
 				</select>
 				<span class="error">#{error 'application.vcsType' /}</span>
 			</td>

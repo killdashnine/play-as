@@ -25,31 +25,31 @@ import core.ProcessManager;
 /**
  * Implementation for a GIT Version Control System
  */
-public class GitVersionControlSystem implements VersionControlSystem {
+public class SubversionVersionControlSystem implements VersionControlSystem {
 
-	public String getFullGitPath() {
-		final String path = Play.configuration.getProperty("path.git");
+	public String getFullSubversionPath() {
+		final String path = Play.configuration.getProperty("path.svn");
 		// return setting from application.conf or assume command is on the instance's path
-		return path == null || path.isEmpty() ? "git" : path;
+		return path == null || path.isEmpty() ? "svn" : path;
 	}
 	
 	@Override
-	public String checkout(final String pid, final String gitUrl) throws Exception {
-		final String checkoutPid = "git-clone-" + pid;
-		return ProcessManager.executeCommand(checkoutPid, getFullGitPath() + " clone " + gitUrl + " apps/" + pid);
+	public String checkout(final String pid, final String url) throws Exception {
+		final String checkoutPid = "svn-checkout-" + pid;
+		return ProcessManager.executeCommand(checkoutPid, getFullSubversionPath() + " checkout " + url + " apps/" + pid);
 	}
 	
 	@Override
 	public String update(final String pid) throws Exception {
-		final String checkoutPid = "git-pull-" + pid;
-		return ProcessManager.executeCommand(checkoutPid, getFullGitPath() + " pull origin master", new File("apps/" + pid));
+		final String checkoutPid = "svn-update-" + pid;
+		return ProcessManager.executeCommand(checkoutPid, getFullSubversionPath() + " update", new File("apps/" + pid));
 	}
 	
 	@Override
 	public String cleanup(final String pid) throws Exception {
-		final String checkoutPid = "git-checkout-" + pid;
+		final String checkoutPid = "svn-revert-" + pid;
 		final StringBuffer output = new StringBuffer();
-		output.append(ProcessManager.executeCommand(checkoutPid, getFullGitPath() + " --git-dir=apps/" + pid + "/.git --work-tree=apps/" + pid + " checkout -- conf/application.conf"));
+		output.append(ProcessManager.executeCommand(checkoutPid, getFullSubversionPath() + " revert *"));
 		return output.toString(); 
 	}
 }

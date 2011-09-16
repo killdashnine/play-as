@@ -25,7 +25,7 @@ public class VersionControlSystemFactory {
 	 * VCS types supported
 	 */
 	public enum VersionControlSystemType {
-		GIT
+		GIT, SVN
 	}
 	
 	/**
@@ -36,6 +36,8 @@ public class VersionControlSystemFactory {
 		switch(type) {
 			case GIT:
 				return new GitVersionControlSystem();
+			case SVN:
+				return new SubversionVersionControlSystem();
 			default:
 				throw new Exception("Unimplemented VCS");
 		}
