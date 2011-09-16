@@ -11,4 +11,7 @@ eclipse/
 db/
 
 # Ignore netbeans folder
-/nbproject
+nbproject/
+
+# Ignore test results
+test-result/
