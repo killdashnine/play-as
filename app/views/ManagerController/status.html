@@ -28,6 +28,7 @@
 		   				<a onclick="restart(${application.id})" style="color: green">restart</a>  
 		   			#{/else}
 		   			<a onclick="update(${application.id})">update</a>
+		   			<a onclick="remove(${application.id})">remove</a>
 		   		</td>
 		   	</tr>
 		#{/list}
@@ -50,5 +51,12 @@ function update(id) {
 
 function restart(id) {
     $.get('/application/' + id + '/restart');
+}
+
+function remove(id) {
+	var confirmed = confirm("Are you sure you want to do this?")
+	if(confirmed) {
+		$.get('/application/' + id + '/remove');
+	}
 }
 </script>

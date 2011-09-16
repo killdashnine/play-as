@@ -126,4 +126,25 @@ public class ApplicationController extends Controller {
 			ManagerController.index();
 		}
 	}
+	
+	public static void remove(final Long id) throws Exception {
+		final Application application = Application.findById(id);
+		
+		if(application == null) {
+			notFound();
+		}
+		else {
+			// First we remove the entity to avoid the process manager to start it back up again
+			for(final ApplicationProperty property : application.properties) {
+				property.delete();
+			}
+			
+			application.delete();
+			
+			application.stop();
+			application.clean();
+	
+			ManagerController.index();
+		}
+	}
 }

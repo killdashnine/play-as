@@ -181,8 +181,5 @@ public class Application extends Model {
 		}
 		
 		FileUtils.deleteDirectory(new File("apps/" + pid));
-
-		checkedOut = false;
-		save();
 	}	
 }
