@@ -16,13 +16,11 @@
 
 package controllers;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import models.Application;
 import models.ApplicationProperty;
-import play.Logger;
 import play.libs.F.Promise;
 import play.mvc.WebSocketController;
 import core.LogGenerator;

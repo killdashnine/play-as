@@ -181,5 +181,9 @@ public class Application extends Model {
 		}
 		
 		FileUtils.deleteDirectory(new File("apps/" + pid));
+	}
+
+	public synchronized String status() throws Exception {
+		return ProcessManager.executeCommand("status-" + pid, ProcessManager.getFullPlayPath() + " status .", false, new File("apps/" + pid + "/"));
 	}	
 }

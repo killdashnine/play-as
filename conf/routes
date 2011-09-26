@@ -8,6 +8,7 @@ GET		/application/{id}/start					ApplicationController.start
 GET		/application/{id}/restart				ApplicationController.restart
 GET		/application/{id}/update				ApplicationController.update
 GET		/application/{id}/remove				ApplicationController.remove
+GET		/application/{id}/status				ApplicationController.status
 POST	/applications							ApplicationController.create
 PUT		/application/{id}						ApplicationController.edit
 

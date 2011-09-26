@@ -146,4 +146,16 @@ public class ApplicationController extends Controller {
 			ManagerController.index();
 		}
 	}
+	
+	public static void status(final Long id) throws Exception {
+		final Application application = Application.findById(id);
+		
+		if(application == null) {
+			notFound();
+		}
+		else {
+			final String status = application.status();
+			render(status);
+		}
+	}
 }

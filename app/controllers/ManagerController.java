@@ -18,6 +18,8 @@ package controllers;
 
 import java.util.List;
 
+import core.ProcessManager;
+
 import play.mvc.Controller;
 
 public class ManagerController extends Controller {
@@ -30,5 +32,4 @@ public class ManagerController extends Controller {
     	final List<ApplicationController> applications = models.Application.all().fetch();
         render(applications);
     }
-
 }

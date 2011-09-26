@@ -158,6 +158,10 @@ public class ProcessManager extends Job {
 	public static synchronized String executeCommand(final String pid,
 			final String command, boolean log, final File workingPath) throws Exception {
 		
+		if(log) {
+			Logger.info("Running command %s", command);
+		}
+		
 		final Process process = executeProcess(pid, command, workingPath);
 		final BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 		final BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
@@ -165,8 +169,8 @@ public class ProcessManager extends Job {
 	
 		// asynchronous waiting here
 		while (isProcessRunning(pid, ProcessType.COMMAND)) {
-			readCommandOutput(log, reader, output);
-			readCommandOutput(log, errorReader, output);
+			readCommandOutput(log, reader, output, false);
+			readCommandOutput(log, errorReader, output, true);
 			Thread.sleep(10);
 		}
 	
@@ -196,16 +200,21 @@ public class ProcessManager extends Job {
 	 * @param output Output buffer to store output in
 	 */
 	private static void readCommandOutput(boolean log,
-			final BufferedReader reader, final StringBuffer output)
+			final BufferedReader reader, final StringBuffer output, boolean error)
 			throws IOException {
 		String line = reader.readLine();
 		while (line != null) {
 			
 			if(log) {
-				Logger.info("command: %s", line);
+				if(error) {
+					Logger.error("command: %s", line);
+				}
+				else {
+					Logger.info("command: %s", line);
+				}
 			}
 			
-			output.append(line);
+			output.append(line + "\n");
 			line = reader.readLine();
 		}
 	}
