@@ -107,8 +107,13 @@ public class Application extends Model {
 		// generate application.conf
 		ConfigurationManager.generateConfigurationFiles(this);
 		
+		
 		ProcessManager.executeProcess(pid + "-start", ProcessManager.getFullPlayPath() + " start .", new File("apps/" + pid + "/"));
 		Logger.info("Started %s", pid);
+	}
+
+	private void resolveDependencies() throws Exception {
+		ProcessManager.executeCommand(pid + "-deps", ProcessManager.getFullPlayPath() + " deps --sync .", new File("apps/" + pid + "/"));
 	}
 	
 	/**
@@ -147,6 +152,8 @@ public class Application extends Model {
 		vcs.cleanup(pid); // cleanup working directory
 		vcs.update(pid); // pull changes from git
 		
+		resolveDependencies();
+		
 		// if the application was already running this will force the process manager to restart the process
 		stop();
 	}
@@ -160,6 +167,8 @@ public class Application extends Model {
 		}
 		
 		VersionControlSystemFactory.getVersionControlSystem(vcsType).checkout(pid, vcsUrl);
+		
+		resolveDependencies();
 		
 		checkedOut = true;
 		save();
