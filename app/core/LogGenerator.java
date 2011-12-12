@@ -25,6 +25,7 @@ import java.io.UnsupportedEncodingException;
 
 import play.jobs.Job;
 import play.libs.F.Promise;
+import play.templates.JavaExtensions;
 
 public class LogGenerator extends Job {
 
@@ -50,7 +51,7 @@ public class LogGenerator extends Job {
 		        Thread.sleep(500);
 		    }
 		    else {
-		    	return line + "<br/>";
+		    	return JavaExtensions.escapeHtml(line) + "<br/>";
 		    }
 		}
 	}
