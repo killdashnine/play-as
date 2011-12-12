@@ -121,7 +121,7 @@ public class ConfigurationManager {
         new ApplicationProperty(application, 3, "log4j.logger.play", "INFO").save();
         new ApplicationProperty(application, 4, "log4j.appender.Rolling", "org.apache.log4j.RollingFileAppender").save();
         new ApplicationProperty(application, 5, "log4j.appender.Rolling.File", "logs/" + application.pid + ".log").save();
-        new ApplicationProperty(application, 6, "log4j.appender.Rolling.MaxFileSize", "1MB").save();
+        new ApplicationProperty(application, 6, "log4j.appender.Rolling.MaxFileSize", "128KB").save();
         new ApplicationProperty(application, 7, "log4j.appender.Rolling.MaxBackupIndex", "100").save();
         new ApplicationProperty(application, 8, "log4j.appender.Rolling.layout", "org.apache.log4j.PatternLayout").save();
         new ApplicationProperty(application, 9, "log4j.appender.Rolling.layout.ConversionPattern", "%d{ABSOLUTE} %-5p ~ %m%n").save();
