@@ -47,9 +47,10 @@ public class GitVersionControlSystem implements VersionControlSystem {
 	
 	@Override
 	public String cleanup(final String pid) throws Exception {
-		final String checkoutPid = "git-checkout-" + pid;
+		final String cleanupPid = "git-cleanup-" + pid;
 		final StringBuffer output = new StringBuffer();
-		output.append(ProcessManager.executeCommand(checkoutPid, getFullGitPath() + " --git-dir=apps/" + pid + "/.git --work-tree=apps/" + pid + " checkout -- conf/application.conf"));
+		output.append(ProcessManager.executeCommand(cleanupPid, getFullGitPath() + " --git-dir=apps/" + pid + "/.git --work-tree=apps/" + pid + " checkout -- conf/application.conf"));
+		output.append(ProcessManager.executeCommand(cleanupPid, getFullGitPath() + " gc", new File("apps/" + pid)));
 		return output.toString(); 
 	}
 }
