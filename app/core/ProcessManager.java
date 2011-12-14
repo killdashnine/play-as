@@ -167,10 +167,18 @@ public class ProcessManager extends Job {
 		final BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 		final StringBuffer output = new StringBuffer();
 	
+		boolean hasErrors = false;
+		
 		// asynchronous waiting here
 		while (isProcessRunning(pid, ProcessType.COMMAND)) {
+			
 			readCommandOutput(log, reader, output, false);
-			readCommandOutput(log, errorReader, output, true);
+			
+			// check if the command produced error output
+			if(readCommandOutput(log, errorReader, output, true)) {
+				hasErrors = true;
+			}
+			
 			Thread.sleep(10);
 		}
 	
@@ -186,7 +194,7 @@ public class ProcessManager extends Job {
 		reader.close();
 		errorReader.close();
 	
-		if (process.exitValue() != 0) {
+		if (process.exitValue() != 0 || hasErrors) {
 			throw new Exception("command failed");
 		}
 	
@@ -199,15 +207,17 @@ public class ProcessManager extends Job {
 	 * @param reader Used for reading from the process
 	 * @param output Output buffer to store output in
 	 */
-	private static void readCommandOutput(boolean log,
+	private static boolean readCommandOutput(boolean log,
 			final BufferedReader reader, final StringBuffer output, boolean error)
 			throws IOException {
+		boolean hasErrors = false;
 		String line = reader.readLine();
 		while (line != null) {
 			
 			if(log) {
 				if(error) {
 					Logger.error("command: %s", line);
+					hasErrors = true;
 				}
 				else {
 					Logger.info("command: %s", line);
@@ -217,6 +227,7 @@ public class ProcessManager extends Job {
 			output.append(line + "\n");
 			line = reader.readLine();
 		}
+		return hasErrors;
 	}
 
 	/**

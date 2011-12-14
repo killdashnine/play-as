@@ -107,9 +107,16 @@ public class Application extends Model {
 		// generate application.conf
 		ConfigurationManager.generateConfigurationFiles(this);
 		
-		
-		ProcessManager.executeProcess(pid + "-start", ProcessManager.getFullPlayPath() + " start .", new File("apps/" + pid + "/"));
-		Logger.info("Started %s", pid);
+		try {
+			ProcessManager.executeCommand(pid + "-start", ProcessManager.getFullPlayPath() + " start .", new File("apps/" + pid + "/"));
+			Logger.info("Started %s", pid);
+		}
+		catch(Exception e) {
+			Logger.info(e, "Failed to start %s", pid);
+			if(!new File("apps/" + pid + "/server.pid").delete()) {
+				throw new Exception("Unable to remove server.pid for falsely started application, remove manually");
+			}
+		}
 	}
 
 	private void resolveDependencies() throws Exception {
@@ -120,7 +127,7 @@ public class Application extends Model {
 	 * Stop the application
 	 */
 	public void stop() throws Exception {
-		ProcessManager.executeProcess(pid + "-stop", ProcessManager.getFullPlayPath() + " stop .", new File("apps/" + pid + "/"));
+		ProcessManager.executeCommand(pid + "-stop", ProcessManager.getFullPlayPath() + " stop .", new File("apps/" + pid + "/"));
 		Logger.info("Stopped %s", pid);
 	}
 	
