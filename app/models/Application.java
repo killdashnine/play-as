@@ -116,6 +116,7 @@ public class Application extends Model {
 			if(!new File("apps/" + pid + "/server.pid").delete()) {
 				throw new Exception("Unable to remove server.pid for falsely started application, remove manually");
 			}
+			throw e;
 		}
 	}
 

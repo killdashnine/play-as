@@ -75,10 +75,13 @@ public class ApplicationController extends Controller {
 			notFound();
 		}
 		else {
+			Logger.info("Starting %s", application.pid);
+			// forced start
+			application.start(true);
+
+			// make the action persistent upon crash
 			application.enabled = true;
 			application.save();
-			
-			Logger.info("Requesting to start %s", application.pid);
 			
 			ManagerController.index();
 		}
