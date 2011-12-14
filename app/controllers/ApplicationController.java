@@ -143,7 +143,10 @@ public class ApplicationController extends Controller {
 			
 			application.delete();
 			
-			application.stop();
+			if(application.enabled) {
+				application.stop();
+			}
+			
 			application.clean();
 	
 			ManagerController.index();

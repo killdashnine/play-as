@@ -108,7 +108,7 @@ public class Application extends Model {
 		ConfigurationManager.generateConfigurationFiles(this);
 		
 		try {
-			ProcessManager.executeCommand(pid + "-start", ProcessManager.getFullPlayPath() + " start .", new File("apps/" + pid + "/"));
+			ProcessManager.executeCommand(pid + "-start", ProcessManager.getFullPlayPath() + " start .", new StringBuffer(), new File("apps/" + pid + "/"));
 			Logger.info("Started %s", pid);
 		}
 		catch(Exception e) {
@@ -121,15 +121,14 @@ public class Application extends Model {
 	}
 
 	private void resolveDependencies() throws Exception {
-		ProcessManager.executeCommand(pid + "-deps", ProcessManager.getFullPlayPath() + " deps --sync .", new File("apps/" + pid + "/"));
+		ProcessManager.executeCommand(pid + "-deps", ProcessManager.getFullPlayPath() + " deps --sync .", new StringBuffer(), new File("apps/" + pid + "/"));
 	}
 	
 	/**
 	 * Stop the application
 	 */
 	public void stop() throws Exception {
-		ProcessManager.executeCommand(pid + "-stop", ProcessManager.getFullPlayPath() + " stop .", new File("apps/" + pid + "/"));
-		Logger.info("Stopped %s", pid);
+		ProcessManager.executeProcess(pid + "-stop", ProcessManager.getFullPlayPath() + " stop .", new File("apps/" + pid + "/"));
 	}
 	
 	/**
@@ -201,6 +200,6 @@ public class Application extends Model {
 	}
 
 	public synchronized String status() throws Exception {
-		return ProcessManager.executeCommand("status-" + pid, ProcessManager.getFullPlayPath() + " status .", false, new File("apps/" + pid + "/"));
+		return ProcessManager.executeCommand("status-" + pid, ProcessManager.getFullPlayPath() + " status .",  new StringBuffer(), false, new File("apps/" + pid + "/"));
 	}	
 }

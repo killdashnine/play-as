@@ -38,7 +38,7 @@ import play.jobs.Job;
 /**
  * Process management for all spawned subprocesses.
  */
-@Every("10s")
+@Every("1s")
 public class ProcessManager extends Job {
 	
 	/**
@@ -134,18 +134,18 @@ public class ProcessManager extends Job {
 	}
 
 	public static String executeCommand(final String pid,
-			final String command) throws Exception {
-		return executeCommand(pid, command, true, null);
+			final String command, final StringBuffer output) throws Exception {
+		return executeCommand(pid, command, output, true, null);
 	}
 	
 	public static String executeCommand(final String pid,
-			final String command, final File workingPath) throws Exception {
-		return executeCommand(pid, command, true, workingPath);
+			final String command, final StringBuffer output, final File workingPath) throws Exception {
+		return executeCommand(pid, command, output, true, workingPath);
 	}
 	
 	public static synchronized String executeCommand(final String pid,
-			final String command, boolean log) throws Exception {
-		return executeCommand(pid, command, log, null);
+			final String command, final StringBuffer output, boolean log) throws Exception {
+		return executeCommand(pid, command, output, log, null);
 	}
 	
 	/**
@@ -156,7 +156,7 @@ public class ProcessManager extends Job {
 	 * @param workingPath Path to execute the command from
 	 */
 	public static synchronized String executeCommand(final String pid,
-			final String command, boolean log, final File workingPath) throws Exception {
+			final String command, final StringBuffer output, boolean log, final File workingPath) throws Exception {
 		
 		if(log) {
 			Logger.info("Running command %s", command);
@@ -165,7 +165,6 @@ public class ProcessManager extends Job {
 		final Process process = executeProcess(pid, command, workingPath);
 		final BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 		final BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-		final StringBuffer output = new StringBuffer();
 	
 		boolean hasErrors = false;
 		
@@ -302,7 +301,7 @@ public class ProcessManager extends Job {
 		else if(type == ProcessType.PLAY) {
 			try {
 				// If the container was killed, we are still able to re-attach to the still running "childs"
-				executeCommand("check-" + pid, getFullPlayPath() + " pid .", false, new File("apps/" + pid + "/"));
+				executeCommand("check-" + pid, getFullPlayPath() + " pid .",  new StringBuffer(), false, new File("apps/" + pid + "/"));
 				return true;
 			} catch (Exception e) {
 				return false;
