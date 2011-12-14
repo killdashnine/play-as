@@ -1,5 +1,11 @@
 body {
+	margin: 0px;
+	padding: 0px;
 	color: #000;
+}
+
+h1, h2, h3, h4, h5 {
+    color: #333333;
 }
 
 table {
@@ -36,4 +42,28 @@ a:hover {
 	height: 500px;
 	background-color: #000;
 	color: #fff;
+}
+
+div#header {
+    background: -moz-linear-gradient(center top , #555555, #333333) repeat scroll 0 0 transparent;
+    height: 70px;
+}
+
+div#header h1#logo {
+	color: #333333;
+	margin: 0;
+}
+
+div#header h1#logo a {
+	background: url("@{'/public/images/logo.png'}") no-repeat scroll 50% 50% transparent;
+    display: block;
+    height: 50px;
+    top: 10px;
+    position: absolute;
+    width: 550px;
+    padding-left: 20px;
+}
+
+div#page {
+	padding: 10px 20px 10px 20px;
 }
