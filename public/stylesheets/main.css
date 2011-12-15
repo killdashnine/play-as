@@ -73,3 +73,10 @@ div#header h1#logo a img {
 div#page {
 	padding: 10px 20px;
 }
+
+div#footer {
+    background: -moz-linear-gradient(center top , #555, #333) repeat scroll 0 0 transparent;
+    height: 20px;
+    text-align: center;
+    color: #ccc;
+}
