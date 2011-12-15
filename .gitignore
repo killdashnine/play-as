@@ -1,8 +1,10 @@
-# Play tmp directory
+# Play directories
+logs/
 tmp/
 
 # Ignore eclipse folders and files
 eclipse/
+modules/
 .classpath
 .project
 .settings
