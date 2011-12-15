@@ -48,7 +48,7 @@ public class LogGenerator extends Job {
 		    final String line = bufferedReader.readLine();
 		    if (line == null) {
 		    	// timeout
-		        Thread.sleep(500);
+		        Thread.sleep(50);
 		    }
 		    else {
 		    	return JavaExtensions.escapeHtml(line) + "<br/>";
