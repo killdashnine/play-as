@@ -39,7 +39,8 @@ public class LogGenerator extends Job {
 		bufferedReader = new BufferedReader(inputStreamReader);
 		
 		if(skipToEnd) {
-			bufferedReader.skip(fileInputStream.available() - (10 * 1024)); // skip to end - 10 kilo bytes
+			final int skipping = fileInputStream.available() - (10 * 1024);
+			bufferedReader.skip(skipping >= 0 ? skipping : fileInputStream.available() + skipping); // skip to end - 10 kilo bytes
 		}
 	}
 	
