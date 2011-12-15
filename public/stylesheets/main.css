@@ -60,14 +60,14 @@ div#header h1#logo a {
     display: block;
     height: 70px;
     position: absolute;
-    width: 550px;
+    width: 500px;
     padding-left: 20px;
 }
 
 div#header h1#logo a img {
 	padding: 10px 0px;
     height: 50px;
-    width: 550px;
+    width: 500px;
 }
 
 div#page {
