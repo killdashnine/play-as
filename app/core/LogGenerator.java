@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
+import play.Logger;
 import play.jobs.Job;
 import play.libs.F.Promise;
 import play.templates.JavaExtensions;
@@ -40,7 +41,7 @@ public class LogGenerator extends Job {
 		
 		if(skipToEnd) {
 			final int skipping = fileInputStream.available() - (10 * 1024);
-			bufferedReader.skip(skipping >= 0 ? skipping : fileInputStream.available() + skipping); // skip to end - 10 kilo bytes
+			bufferedReader.skip(skipping > 0 ? skipping : 0); // skip to end - 10 kilo bytes
 		}
 	}
 	
