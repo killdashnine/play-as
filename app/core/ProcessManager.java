@@ -215,11 +215,11 @@ public class ProcessManager extends Job {
 			
 			if(log) {
 				if(error) {
-					Logger.error("command: %s", line);
+					Logger.error("%s", line);
 					hasErrors = true;
 				}
 				else {
-					Logger.info("command: %s", line);
+					Logger.info("%s", line);
 				}
 			}
 			
