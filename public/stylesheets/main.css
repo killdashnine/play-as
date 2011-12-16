@@ -1,16 +1,33 @@
 body {
 	margin: 0px;
 	padding: 0px;
-	color: #000;
-    background: -moz-linear-gradient(center top , #fff, #ccc) repeat scroll 0 0 transparent;
+	font-family: Arial, Verdana;
+	color: #000;	
+	/* fallback (Opera) */
+    background: #dedede;
+    /* Mozilla: */
+    background: -moz-linear-gradient(top, #fff, #ccc) repeat scroll 0 0 transparent;
+    /* Chrome, Safari:*/
+    background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ccc));
+    /* MSIE */
+    filter: progid:DXImageTransform.Microsoft.Gradient(StartColorStr='#ffffff', EndColorStr='#cccccc', GradientType=0);
 }
 
 h1, h2, h3, h4, h5 {
     color: #333;
 }
 
+img {
+	border: 0px;
+}
+
 table {
 	width: 600px;
+	box-shadow: 2px 2px 5px #888;
+	/* IE 8 */
+  	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=5, Direction=135, Color='#888888')";
+  	/* IE 5.5 - 7 */
+  	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=5, Direction=135, Color='#888888');
 }
 
 th {
@@ -43,10 +60,22 @@ a:hover {
 	height: 500px;
 	background-color: #000;
 	color: #fff;
+	box-shadow: 2px 2px 5px #888;
+	/* IE 8 */
+  	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=5, Direction=135, Color='#888888')";
+  	/* IE 5.5 - 7 */
+  	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=5, Direction=135, Color='#888888');
 }
 
 div#header {
-    background: -moz-linear-gradient(center top , #555, #333) repeat scroll 0 0 transparent;
+	/* fallback (Opera) */
+    background: #444;
+    /* Mozilla: */
+    background: -moz-linear-gradient(top, #555, #333) repeat scroll 0 0 transparent;
+    /* Chrome, Safari:*/
+    background: -webkit-gradient(linear, left top, left bottom, from(#555), to(#333));
+    /* MSIE */
+    filter: progid:DXImageTransform.Microsoft.Gradient(StartColorStr='#555555', EndColorStr='#333333', GradientType=0);
     height: 70px;
 }
 
@@ -75,8 +104,26 @@ div#page {
 }
 
 div#footer {
-    background: -moz-linear-gradient(center top , #555, #333) repeat scroll 0 0 transparent;
+	/* fallback (Opera) */
+    background: #444;
+    /* Mozilla: */
+    background: -moz-linear-gradient(top, #555, #333) repeat scroll 0 0 transparent;
+    /* Chrome, Safari:*/
+    background: -webkit-gradient(linear, left top, left bottom, from(#555), to(#333));
+    /* MSIE */
+    filter: progid:DXImageTransform.Microsoft.Gradient(StartColorStr='#555555', EndColorStr='#333333', GradientType=0);
     height: 20px;
     text-align: center;
     color: #ccc;
+    text-shadow: 1px 1px #000;
+    font-style: italic;
+}
+
+div#footer a {
+	color: #ccc;
+	text-decoration: underline;
+}
+
+div#footer a:hover {
+	text-decoration: none;
 }
