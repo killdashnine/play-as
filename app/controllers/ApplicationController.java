@@ -75,7 +75,7 @@ public class ApplicationController extends Controller {
 			notFound();
 		}
 		else {
-			Logger.info("Starting %s", application.pid);
+			Logger.info("Starting %s, this could take up to %s seconds when application fails to start", application.pid, Application.PROCESS_START_TIMEOUT);
 			// forced start
 			application.start(true);
 

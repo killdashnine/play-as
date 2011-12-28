@@ -71,4 +71,14 @@ public class ApplicationProperty extends Model {
 	public static ApplicationProperty findLogFileProperty(final Application application) {
 		return (ApplicationProperty) find("application = ? and key = ?", application, "log4j.appender.Rolling.File").first();
 	}
+	
+	@Transient
+	public static ApplicationProperty findHostProperty(final Application application) {
+		return (ApplicationProperty) find("application = ? and key = ?", application, "http.address").first();
+	}
+	
+	@Transient
+	public static ApplicationProperty findPortProperty(final Application application) {
+		return (ApplicationProperty) find("application = ? and key = ?", application, "http.port").first();
+	}
 }

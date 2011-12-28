@@ -17,8 +17,9 @@
 package models;
 
 import java.io.File;
-import java.util.HashSet;
+import java.net.ConnectException;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -29,11 +30,12 @@ import javax.persistence.Transient;
 
 import org.apache.commons.io.FileUtils;
 
-
 import play.Logger;
 import play.Play.Mode;
 import play.data.validation.Required;
 import play.db.jpa.Model;
+import play.libs.WS;
+import play.libs.WS.WSRequest;
 import scm.VersionControlSystem;
 import scm.VersionControlSystemFactory;
 import scm.VersionControlSystemFactory.VersionControlSystemType;
@@ -48,6 +50,9 @@ import core.ProcessManager.ProcessType;
 @Table(name="applications")
 public class Application extends Model {
 	
+	public static final int PROCESS_START_TIMEOUT = 120;
+	private static final int ONE_SECOND = 1000;
+
 	/**
 	 * Program ID
 	 */
@@ -108,18 +113,98 @@ public class Application extends Model {
 		ConfigurationManager.generateConfigurationFiles(this);
 		
 		try {
+			// Some processes may take some time to boot (pre-compiling, @OnApplicationStart jobs)
+			// So we will be making some HTTP requests to check if it's up
+			final ApplicationProperty address = ApplicationProperty.findHostProperty(this);
+			final ApplicationProperty port = ApplicationProperty.findPortProperty(this);
+			final String url = "http://" + (address == null ? "127.0.0.1" : address.value) + ":" + port.value;
+
+			// Let's first see if there already is another application running on this port
+			checkForOtherApplication(url);
+			
 			ProcessManager.executeCommand(pid + "-start", ProcessManager.getFullPlayPath() + " start .", new StringBuffer(), new File("apps/" + pid + "/"));
+
+			// Send 'ping' HTTP requests to verify the application
+			checkApplicationIsRunning(url);
+
+			// final check just to make sure it really started
+			ProcessManager.executeCommand(pid + "-status", ProcessManager.getFullPlayPath() + " status .", new StringBuffer(), new File("apps/" + pid + "/"));
+			
 			Logger.info("Started %s", pid);
+		}
+		catch(TimeoutException e) {
+			Logger.info("Could not determine whether %s started, time-out value: %s reached", pid, PROCESS_START_TIMEOUT);
+			Logger.info("Check status manually and remove server.pid manually when needed");
+			throw e;
 		}
 		catch(Exception e) {
 			Logger.info(e, "Failed to start %s", pid);
-			if(!new File("apps/" + pid + "/server.pid").delete()) {
+			
+			// Try to delete server.pid
+			final File serverPid = new File("apps/" + pid + "/server.pid");
+			if(serverPid.exists() && !new File("apps/" + pid + "/server.pid").delete()) {
 				throw new Exception("Unable to remove server.pid for falsely started application, remove manually");
 			}
+			
 			throw e;
 		}
 	}
 
+	/**
+	 * Verify whether an application is started by sending HTTP 'pings' for a specified time-out period
+	 * @throws TimeoutException Is thrown when the time-out period is expired
+	 */
+	private void checkApplicationIsRunning(final String url)
+			throws InterruptedException, TimeoutException {
+		int n = 0;
+		while(n < PROCESS_START_TIMEOUT) {
+			try {
+				final WSRequest request = WS.url(url);
+				request.timeout("1s"); // low time-out so we make sure the time-out cycle is as long as we define it to be
+				request.get();
+				break;
+			}
+			catch(RuntimeException e) {
+				Thread.sleep(ONE_SECOND);
+				n++;
+			}
+		}
+		
+		if(n == PROCESS_START_TIMEOUT) {
+			throw new TimeoutException("Time-out value reached");
+		}
+	}
+
+	/**
+	 * Check for any other application that may be present on the port and throw an exception if there is any.
+	 */
+	private void checkForOtherApplication(final String url) throws Exception {
+		try {
+			final WSRequest request = WS.url(url);
+			request.timeout("1s"); // set time-out to a low value to make sure
+									// we time-out when there is a connect but
+									// no answer, for example with SSH
+			request.get();
+			
+			throw new Exception("There is already another application bound to " + url);
+		}
+		catch(Exception e) {
+			// very dirty, but Play! wraps all upper level exceptions, so there really isn't any other way
+			if(e.getCause() != null && e.getCause().getCause() != null && e.getCause().getCause() instanceof ConnectException) {				
+				// this is good
+				Logger.info("Port seems to be free: %s", e.getMessage());
+			}
+			else {
+				// this means that there is an application there 
+				// there is either a timeout, a HTTP app, or another protocol than HTTP
+				throw new Exception("There is already another application bound to " + url + ": " + e.getMessage());
+			}
+		}
+	}
+
+	/**
+	 * Run play deps command for the application
+	 */
 	private void resolveDependencies() throws Exception {
 		ProcessManager.executeCommand(pid + "-deps", ProcessManager.getFullPlayPath() + " deps --sync .", new StringBuffer(), new File("apps/" + pid + "/"));
 	}
@@ -199,6 +284,9 @@ public class Application extends Model {
 		FileUtils.deleteDirectory(new File("apps/" + pid));
 	}
 
+	/**
+	 * Run the 'play status' command for this application and return its output
+	 */
 	public synchronized String status() throws Exception {
 		return ProcessManager.executeCommand("status-" + pid, ProcessManager.getFullPlayPath() + " status .",  new StringBuffer(), false, new File("apps/" + pid + "/"));
 	}	

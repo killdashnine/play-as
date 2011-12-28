@@ -103,6 +103,9 @@ public class ProcessManager extends Job {
 		}
 	}
 	
+	/**
+	 * Get full path to the Play! binary
+	 */
 	@Transient
 	public static String getFullPlayPath() {
 		final String path = Play.configuration.getProperty("path.play");
@@ -143,7 +146,7 @@ public class ProcessManager extends Job {
 		return executeCommand(pid, command, output, true, workingPath);
 	}
 	
-	public static synchronized String executeCommand(final String pid,
+	public static String executeCommand(final String pid,
 			final String command, final StringBuffer output, boolean log) throws Exception {
 		return executeCommand(pid, command, output, log, null);
 	}
@@ -155,7 +158,7 @@ public class ProcessManager extends Job {
 	 * @param log Log to logger?
 	 * @param workingPath Path to execute the command from
 	 */
-	public static synchronized String executeCommand(final String pid,
+	public static String executeCommand(final String pid,
 			final String command, final StringBuffer output, boolean log, final File workingPath) throws Exception {
 		
 		if(log) {
@@ -169,7 +172,11 @@ public class ProcessManager extends Job {
 		boolean hasErrors = false;
 		
 		// asynchronous waiting here
-		while (isProcessRunning(pid, ProcessType.COMMAND)) {
+		while(isProcessRunning(pid, ProcessType.COMMAND)) {
+			
+			if(log) {
+				Logger.info("running");
+			}
 			
 			readCommandOutput(log, reader, output, false);
 			
@@ -180,9 +187,9 @@ public class ProcessManager extends Job {
 			
 			Thread.sleep(10);
 		}
-	
+		
 		if(log) {
-			Logger.info("command %s completed", command);
+			Logger.info("Process: %s has stopped with exit value: %s", pid, process.exitValue());
 		}
 		
 		// force removal
@@ -236,41 +243,23 @@ public class ProcessManager extends Job {
 		/* pids to remove */
 		final List<String> pids = new LinkedList<String>();
 		
-		synchronized (processes) {
-			for(final Entry<String, Process> entry : processes.entrySet()) {
-				try {
-					final Process process = entry.getValue();
-					final String pid = entry.getKey();
-					final int status = process.exitValue();
-					
-					Logger.debug("Process with pid %s (%s) is not running anymore, removing from process list.", pid, status);
-					pids.add(pid);
-				}
-				catch(IllegalThreadStateException e) {
-					// still running! so ignore
-				}
+		for(final Entry<String, Process> entry : processes.entrySet()) {
+			try {
+				final Process process = entry.getValue();
+				final String pid = entry.getKey();
+				final int status = process.exitValue();
+				Logger.debug("Process with pid %s (%s) is not running anymore, removing from process list.", pid, status);
+				pids.add(pid);
 			}
+			catch(IllegalThreadStateException e) {
+				// still running! so ignore
+			}
+		}
 
+		synchronized (processes) {
 			// remove all pids that have stopped
 			for(final String pid : pids) {
 				processes.remove(pid);
-			}
-		}
-	}
-	
-	@Deprecated
-	public static int killProcess(final String pid) throws Exception {
-		synchronized (processes) {
-			final Process process = processes.remove(pid);
-			if(process != null) {
-				// There currently is an issue with this as it kills the play python process
-				// but not the spawned subprocess (JVM)
-				process.destroy();
-				process.waitFor();
-				return process.exitValue();
-			}
-			else {
-				throw new Exception("Unknown pid: " + pid);
 			}
 		}
 	}
@@ -282,20 +271,18 @@ public class ProcessManager extends Job {
 	 */
 	public static boolean isProcessRunning(final String pid, final ProcessType type) throws Exception {
 		if(type == ProcessType.COMMAND) {
-			synchronized (processes) {
-				final Process process = processes.get(pid);
-				if(process != null) {
-					try {
-						process.exitValue(); // throws IllegalThreadStateException when task is still running
-						return false;
-					}
-					catch(IllegalThreadStateException e) {
-						return true;
-					}
-				}
-				else {
+			final Process process = processes.get(pid);
+			if(process != null) {
+				try {
+					process.exitValue(); // throws IllegalThreadStateException when task is still running
 					return false;
 				}
+				catch(IllegalThreadStateException e) {
+					return true;
+				}
+			}
+			else {
+				return false;
 			}
 		}
 		else if(type == ProcessType.PLAY) {
