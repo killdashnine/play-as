@@ -36,22 +36,25 @@ public class GitVersionControlSystem implements VersionControlSystem {
 	@Override
 	public String checkout(final String pid, final String gitUrl) throws Exception {
 		final String checkoutPid = "git-clone-" + pid;
-		return ProcessManager.executeCommand(checkoutPid, getFullGitPath() + " clone " + gitUrl + " apps/" + pid, new StringBuffer());
+		return ProcessManager.executeCommand(checkoutPid, getFullGitPath()
+				+ " clone " + gitUrl + " apps/" + pid, new StringBuffer(), false);
 	}
 	
+	/**
+	 * Fetch remote changes, must ALWAYS be called after cleanup()
+	 */
 	@Override
 	public String update(final String pid) throws Exception {
 		final String checkoutPid = "git-pull-" + pid;
 		final StringBuffer output = new StringBuffer();
 
 		try {
-			ProcessManager.executeCommand(checkoutPid, getFullGitPath() + " pull origin master", output, new File("apps/" + pid));
+			ProcessManager.executeCommand(checkoutPid, getFullGitPath()
+					+ " pull origin master", output, new File("apps/" + pid), false);
 		}
 		catch(Exception e) {
 			// Git will print to stderr when pull is already up-to-date
-			if(!output.toString().contains("Already up-to-date")) {
-				throw e;
-			}
+			// It's safe to swallow any exception here since we already did a cleanup
 		}
 		
 		return output.toString();
@@ -61,8 +64,11 @@ public class GitVersionControlSystem implements VersionControlSystem {
 	public String cleanup(final String pid) throws Exception {
 		final String cleanupPid = "git-cleanup-" + pid;
 		final StringBuffer output = new StringBuffer();
-		ProcessManager.executeCommand(cleanupPid, getFullGitPath() + " --git-dir=apps/" + pid + "/.git --work-tree=apps/" + pid + " checkout -- conf/application.conf", output);
-		ProcessManager.executeCommand(cleanupPid, getFullGitPath() + " gc", output, new File("apps/" + pid));
+		ProcessManager.executeCommand(cleanupPid, getFullGitPath()
+				+ " --git-dir=apps/" + pid + "/.git --work-tree=apps/" + pid
+				+ " checkout -- conf/application.conf", output, false);
+		ProcessManager.executeCommand(cleanupPid, getFullGitPath() + " gc",
+				output, new File("apps/" + pid), false);
 		return output.toString(); 
 	}
 }

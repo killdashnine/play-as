@@ -41,6 +41,8 @@ import play.jobs.Job;
 @Every("1s")
 public class ProcessManager extends Job {
 	
+	public static final String PROCESS_START_POSTFIX = "-start";
+
 	/**
 	 * Process type
 	 */
@@ -54,14 +56,7 @@ public class ProcessManager extends Job {
 	 */
 	private static Map<String, Process> processes = new HashMap<String, Process>();
 	
-	/**
-	 * Execute a new subprocess
-	 * @param pid Program ID
-	 * @param command The command to execute
-	 */
-	public static Process executeProcess(final String pid, final String command) throws Exception {
-		return executeProcess(pid, command, null);
-	}
+	private static List<String> keptPids = new LinkedList<String>();
 	
 	/**
 	 * Execute a new subprocess from a given path
@@ -69,7 +64,7 @@ public class ProcessManager extends Job {
 	 * @param command The command to execute
 	 * @param workingPath The path to execute the command from (may be null)
 	 */
-	public static Process executeProcess(final String pid, final String command, File workingPath) throws Exception {
+	public static Process executeProcess(final String pid, final String command, File workingPath, boolean keepPid) throws Exception {
 		synchronized (processes) {
 			// we don't allow multiple pids running at the same time
 			if(processes.containsKey(pid)) {
@@ -77,10 +72,21 @@ public class ProcessManager extends Job {
 			}
 			
 			final Process process = Runtime.getRuntime().exec(command, null, workingPath);
-			processes.put(pid, process);
-			
+				
+			storePid(pid, keepPid, process);
+	
 			return process;
 		}
+	}
+
+	private static void storePid(final String pid, boolean keepPid,
+			final Process process) {
+		if(keepPid) {
+			Logger.info("Stored pid %s in keep", pid);
+			keptPids.add(pid);
+		}
+		
+		processes.put(pid, process);
 	}
 
 	// number of loops to wait for process to change status
@@ -93,12 +99,18 @@ public class ProcessManager extends Job {
 		final List<Application> applications = Application.all().fetch();
 		// check not running applications that should be running
 		for(final Application application : applications) {
+
 			final boolean isRunning = isProcessRunning(application.pid, ProcessType.PLAY);
 			if(application.enabled && application.checkedOut && !isRunning) {
 				application.start(false);
 			}
-			else if(!application.enabled && isRunning) {
-				application.stop();
+			else if(!application.enabled && isRunning) {		
+				final String pid = application.pid + PROCESS_START_POSTFIX;
+				if(!processes.containsKey(pid)) {
+					Logger.info("It appears %s (PID: %s) is running while it should not", application.pid, pid);
+					// there is no process currently booting so kill the Play! instance
+					application.stop();
+				}
 			}
 		}
 	}
@@ -113,42 +125,14 @@ public class ProcessManager extends Job {
 		return path == null || path.isEmpty() ? "play" : path;
 	}
 
-	@Deprecated
-	/**
-	 * Wait for an application to complete
-	 * @param application The application to wait for
-	 */
-	public static void waitForCompletion(final Application application)
-			throws Exception, InterruptedException {
-		final boolean status = application.isRunning();
-		
-		Logger.info("Waiting for completion, status: %s", status);
-		
-		// Wait a bit
-		int counter = 0;
-		while(application.isRunning() == status && counter < ProcessManager.MAXIMUM_WAIT_TIME) {
-			Thread.sleep(1000);
-			counter++;
-		}
-		
-		if(counter == ProcessManager.MAXIMUM_WAIT_TIME) {
-			throw new Exception("Operation timed out");
-		}
-	}
-
 	public static String executeCommand(final String pid,
-			final String command, final StringBuffer output) throws Exception {
-		return executeCommand(pid, command, output, true, null);
+			final String command, final StringBuffer output, final boolean keepPid) throws Exception {
+		return executeCommand(pid, command, output, true, null, keepPid);
 	}
 	
 	public static String executeCommand(final String pid,
-			final String command, final StringBuffer output, final File workingPath) throws Exception {
-		return executeCommand(pid, command, output, true, workingPath);
-	}
-	
-	public static String executeCommand(final String pid,
-			final String command, final StringBuffer output, boolean log) throws Exception {
-		return executeCommand(pid, command, output, log, null);
+			final String command, final StringBuffer output, final File workingPath, final boolean keepPid) throws Exception {
+		return executeCommand(pid, command, output, true, workingPath, keepPid);
 	}
 	
 	/**
@@ -157,15 +141,16 @@ public class ProcessManager extends Job {
 	 * @param command The command to execute
 	 * @param log Log to logger?
 	 * @param workingPath Path to execute the command from
+	 * @param Keep pid in process map for manual removal?
 	 */
 	public static String executeCommand(final String pid,
-			final String command, final StringBuffer output, boolean log, final File workingPath) throws Exception {
+			final String command, final StringBuffer output, boolean log, final File workingPath, final boolean keepPid) throws Exception {
 		
 		if(log) {
-			Logger.info("Running command %s", command);
+			Logger.info("Running command %s (PID: %s)", command, pid);
 		}
 		
-		final Process process = executeProcess(pid, command, workingPath);
+		final Process process = executeProcess(pid, command, workingPath, keepPid);
 		final BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 		final BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 	
@@ -173,35 +158,32 @@ public class ProcessManager extends Job {
 		
 		// asynchronous waiting here
 		while(isProcessRunning(pid, ProcessType.COMMAND)) {
-			
-			if(log) {
-				Logger.info("running");
-			}
-			
 			readCommandOutput(log, reader, output, false);
 			
 			// check if the command produced error output
 			if(readCommandOutput(log, errorReader, output, true)) {
 				hasErrors = true;
 			}
-			
+				
 			Thread.sleep(10);
 		}
 		
 		if(log) {
-			Logger.info("Process: %s has stopped with exit value: %s", pid, process.exitValue());
-		}
-		
-		// force removal
-		synchronized(processes) {
-			processes.remove(pid);
+			Logger.info("Process: %s has stopped with exit value: %s keep: %s", pid, process.exitValue(), keepPid);
 		}
 		
 		reader.close();
 		errorReader.close();
 	
+		if(!keepPid) {
+			// remove pid
+			synchronized (processes) {
+				processes.remove(pid);
+			}
+		}
+		
 		if (process.exitValue() != 0 || hasErrors) {
-			throw new Exception("command failed");
+			throw new Exception("command failed, exit value: " + process.exitValue());
 		}
 	
 		return output.toString();
@@ -217,9 +199,14 @@ public class ProcessManager extends Job {
 			final BufferedReader reader, final StringBuffer output, boolean error)
 			throws IOException {
 		boolean hasErrors = false;
+		
+		// only fetch data if there is any!
+		if(!reader.ready()) {
+			return false;
+		}
+		
 		String line = reader.readLine();
 		while (line != null) {
-			
 			if(log) {
 				if(error) {
 					Logger.error("%s", line);
@@ -229,7 +216,6 @@ public class ProcessManager extends Job {
 					Logger.info("%s", line);
 				}
 			}
-			
 			output.append(line + "\n");
 			line = reader.readLine();
 		}
@@ -244,12 +230,17 @@ public class ProcessManager extends Job {
 		final List<String> pids = new LinkedList<String>();
 		
 		for(final Entry<String, Process> entry : processes.entrySet()) {
+			
 			try {
 				final Process process = entry.getValue();
 				final String pid = entry.getKey();
 				final int status = process.exitValue();
-				Logger.debug("Process with pid %s (%s) is not running anymore, removing from process list.", pid, status);
-				pids.add(pid);
+				
+				if(!keptPids.contains(pid)) {
+					Logger.debug("Process with pid %s (%s) is not running anymore, removing from process list.", pid, status);
+					// not in kept pids list, so remove it
+					pids.add(pid);
+				}
 			}
 			catch(IllegalThreadStateException e) {
 				// still running! so ignore
@@ -261,6 +252,16 @@ public class ProcessManager extends Job {
 			for(final String pid : pids) {
 				processes.remove(pid);
 			}
+		}
+	}
+	
+	/**
+	 * Remove a kept pid from the process list
+	 */
+	public static void removeKeptPid(final String pid) {
+		Logger.info("Removed kept pid: %s", pid);
+		synchronized (processes) {
+			processes.remove(pid);
 		}
 	}
 	
@@ -288,7 +289,9 @@ public class ProcessManager extends Job {
 		else if(type == ProcessType.PLAY) {
 			try {
 				// If the container was killed, we are still able to re-attach to the still running "childs"
-				executeCommand("check-" + pid, getFullPlayPath() + " pid .",  new StringBuffer(), false, new File("apps/" + pid + "/"));
+				executeCommand(pid + "-check-" + System.currentTimeMillis(), getFullPlayPath() + " pid .",
+						new StringBuffer(), false,
+						new File("apps/" + pid + "/"), false);
 				return true;
 			} catch (Exception e) {
 				return false;

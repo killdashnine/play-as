@@ -24,6 +24,7 @@ import java.util.List;
 import models.Application;
 import models.ApplicationProperty;
 import play.Logger;
+import play.Play;
 import play.data.validation.Valid;
 import play.mvc.Controller;
 import core.ConfigurationManager;
@@ -75,7 +76,7 @@ public class ApplicationController extends Controller {
 			notFound();
 		}
 		else {
-			Logger.info("Starting %s, this could take up to %s seconds when application fails to start", application.pid, Application.PROCESS_START_TIMEOUT);
+			Logger.info("Starting %s, this could take up to %s seconds when application fails to start", application.pid, Application.getCommandTimeout());
 			// forced start
 			application.start(true);
 
