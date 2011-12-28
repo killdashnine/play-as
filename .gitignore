@@ -18,3 +18,5 @@ nbproject/
 
 # Ignore test results
 test-result/
+
+server.pid
