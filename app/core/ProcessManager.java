@@ -259,9 +259,20 @@ public class ProcessManager extends Job {
 	 * Remove a kept pid from the process list
 	 */
 	public static void removeKeptPid(final String pid) {
-		Logger.info("Removed kept pid: %s", pid);
 		synchronized (processes) {
 			processes.remove(pid);
+		}
+		
+		synchronized (keptPids) {
+			keptPids.remove(pid);
+		}
+		
+		Logger.info("Removed kept pid: %s", pid);
+	}
+	
+	public static boolean isKeptPidAvailable(final String pid) {
+		synchronized (keptPids) {
+			return keptPids.contains(pid);
 		}
 	}
 	

@@ -256,6 +256,10 @@ public class Application extends Model {
 		return ProcessManager.isProcessRunning(pid, ProcessType.PLAY);
 	}
 	
+	public boolean isBooting() throws Exception {
+		return ProcessManager.isKeptPidAvailable(pid + ProcessManager.PROCESS_START_POSTFIX);
+	}
+	
 	/**
 	 * Pull most recent version from VCS
 	 */

@@ -13,14 +13,19 @@
 		   		<td><a href="@{ApplicationController.show(application.id)}">${application.pid}</a></td>
 		   		<td>${application.mode}</td>
 		   		<td>
-		   			#{if application.running == true}
-		   				<span style="color: green">running</span>
+		   			#{if application.booting == true}
+		   				<span style="color: orange">booting</span>
 		   			#{/if}
 		   			#{else}
-		   				<span style="color: red">stopped</span> 
-		   			#{/else}
+		   				#{if application.running == true}
+			   				<span style="color: green">running</span>
+			   			#{/if}
+			   			#{else}
+			   				<span style="color: red">stopped</span> 
+			   			#{/else}
+			   		#{/else}
 		   		<td>
-		   			#{if application.running == false}
+		   			#{if application.running == false && application.booting == false}
 		   				<a onclick="start(${application.id})">start</a>
 		   			#{/if}
 		   			#{else}
