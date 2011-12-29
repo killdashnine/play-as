@@ -31,11 +31,16 @@ import java.util.Properties;
 import models.Application;
 import models.ApplicationProperty;
 import play.Logger;
+import play.Play;
+import play.jobs.Job;
+import play.jobs.OnApplicationStart;
+import scm.GitVersionControlSystem;
 
 /**
- * Manage individual application configurations
+ * Manage individual application configurations and load GIT revision on application start
  */
-public class ConfigurationManager {
+@OnApplicationStart
+public class ConfigurationManager extends Job {
 
 	/**
 	 * What index is used for container provided properties
@@ -195,6 +200,20 @@ public class ConfigurationManager {
 				property.delete();
 				Logger.info("config(%s): deleted %s", application.pid, property.key);
 			}
+		}
+	}
+	
+	@Override
+	public void doJob() throws Exception {
+		try {
+			final String revision = ProcessManager.executeCommand("git-describe", GitVersionControlSystem.getFullGitPath()
+					+ " describe", new StringBuffer(), false, null, false);
+			Play.configuration.setProperty("git.revision", revision);
+			Logger.info("Play! Application Server revision %s", revision);
+		}
+		catch(Exception e) {
+			Play.configuration.setProperty("git.revision", "unknown");
+			Logger.info("Play! Application Server revision could not be determined");
 		}
 	}
 }

@@ -31,6 +31,7 @@ import javax.persistence.Transient;
 import org.apache.commons.io.FileUtils;
 
 import play.Logger;
+import play.Play;
 import play.Play.Mode;
 import play.data.validation.Required;
 import play.db.jpa.Model;
@@ -50,7 +51,6 @@ import core.ProcessManager.ProcessType;
 @Table(name="applications")
 public class Application extends Model {
 	
-	public static final int PROCESS_START_TIMEOUT = 120;
 	private static final int ONE_SECOND = 1000;
 
 	/**
@@ -97,6 +97,10 @@ public class Application extends Model {
 	@OneToMany(fetch=FetchType.EAGER, mappedBy="application")
 	public Set<ApplicationProperty> properties;
 	
+	public static Integer getCommandTimeout() {
+		return Integer.valueOf(Play.configuration.getProperty("command.timeout"));
+	}
+	
 	/**
 	 * Start the application
 	 * @param force Force start?
@@ -112,6 +116,9 @@ public class Application extends Model {
 		// generate application.conf
 		ConfigurationManager.generateConfigurationFiles(this);
 		
+		// Store play start pid for kept pid process
+		final String startPid = pid + ProcessManager.PROCESS_START_POSTFIX;
+		
 		try {
 			// Some processes may take some time to boot (pre-compiling, @OnApplicationStart jobs)
 			// So we will be making some HTTP requests to check if it's up
@@ -122,18 +129,24 @@ public class Application extends Model {
 			// Let's first see if there already is another application running on this port
 			checkForOtherApplication(url);
 			
-			ProcessManager.executeCommand(pid + "-start", ProcessManager.getFullPlayPath() + " start .", new StringBuffer(), new File("apps/" + pid + "/"));
+			ProcessManager.executeCommand(startPid, ProcessManager
+					.getFullPlayPath()
+					+ " start .", new StringBuffer(), new File("apps/" + pid
+					+ "/"), true);
 
 			// Send 'ping' HTTP requests to verify the application
 			checkApplicationIsRunning(url);
 
 			// final check just to make sure it really started
-			ProcessManager.executeCommand(pid + "-status", ProcessManager.getFullPlayPath() + " status .", new StringBuffer(), new File("apps/" + pid + "/"));
+			ProcessManager.executeCommand(pid + "-status", ProcessManager
+					.getFullPlayPath()
+					+ " status .", new StringBuffer(), new File("apps/" + pid
+					+ "/"), false);
 			
 			Logger.info("Started %s", pid);
 		}
 		catch(TimeoutException e) {
-			Logger.info("Could not determine whether %s started, time-out value: %s reached", pid, PROCESS_START_TIMEOUT);
+			Logger.info("Could not determine whether %s started, time-out value: %s reached", pid, getCommandTimeout());
 			Logger.info("Check status manually and remove server.pid manually when needed");
 			throw e;
 		}
@@ -148,6 +161,9 @@ public class Application extends Model {
 			
 			throw e;
 		}
+		finally {
+			ProcessManager.removeKeptPid(startPid);
+		}
 	}
 
 	/**
@@ -157,7 +173,8 @@ public class Application extends Model {
 	private void checkApplicationIsRunning(final String url)
 			throws InterruptedException, TimeoutException {
 		int n = 0;
-		while(n < PROCESS_START_TIMEOUT) {
+		int timeout = getCommandTimeout();
+		while(n < timeout) {
 			try {
 				final WSRequest request = WS.url(url);
 				request.timeout("1s"); // low time-out so we make sure the time-out cycle is as long as we define it to be
@@ -170,7 +187,7 @@ public class Application extends Model {
 			}
 		}
 		
-		if(n == PROCESS_START_TIMEOUT) {
+		if(n == timeout) {
 			throw new TimeoutException("Time-out value reached");
 		}
 	}
@@ -192,7 +209,7 @@ public class Application extends Model {
 			// very dirty, but Play! wraps all upper level exceptions, so there really isn't any other way
 			if(e.getCause() != null && e.getCause().getCause() != null && e.getCause().getCause() instanceof ConnectException) {				
 				// this is good
-				Logger.info("Port seems to be free: %s", e.getMessage());
+				Logger.info("Port seems to be free");
 			}
 			else {
 				// this means that there is an application there 
@@ -206,14 +223,18 @@ public class Application extends Model {
 	 * Run play deps command for the application
 	 */
 	private void resolveDependencies() throws Exception {
-		ProcessManager.executeCommand(pid + "-deps", ProcessManager.getFullPlayPath() + " deps --sync .", new StringBuffer(), new File("apps/" + pid + "/"));
+		ProcessManager.executeCommand(pid + "-deps", ProcessManager
+				.getFullPlayPath()
+				+ " deps --sync .", new StringBuffer(), new File("apps/" + pid
+				+ "/"), false);
 	}
 	
 	/**
 	 * Stop the application
 	 */
 	public void stop() throws Exception {
-		ProcessManager.executeProcess(pid + "-stop", ProcessManager.getFullPlayPath() + " stop .", new File("apps/" + pid + "/"));
+		ProcessManager.executeProcess(pid + "-stop", ProcessManager.getFullPlayPath() + " stop .", new File("apps/" + pid + "/"), false);
+		Logger.info("Application %s stopped", pid);
 	}
 	
 	/**
@@ -233,6 +254,10 @@ public class Application extends Model {
 			throw new Exception("Application " + pid + " has not yet been checked out from SCM");
 		}
 		return ProcessManager.isProcessRunning(pid, ProcessType.PLAY);
+	}
+	
+	public boolean isBooting() throws Exception {
+		return ProcessManager.isKeptPidAvailable(pid + ProcessManager.PROCESS_START_POSTFIX);
 	}
 	
 	/**
@@ -288,6 +313,9 @@ public class Application extends Model {
 	 * Run the 'play status' command for this application and return its output
 	 */
 	public synchronized String status() throws Exception {
-		return ProcessManager.executeCommand("status-" + pid, ProcessManager.getFullPlayPath() + " status .",  new StringBuffer(), false, new File("apps/" + pid + "/"));
+		return ProcessManager.executeCommand("status-" + pid, ProcessManager
+				.getFullPlayPath()
+				+ " status .", new StringBuffer(), false, new File("apps/"
+				+ pid + "/"), false);
 	}	
 }

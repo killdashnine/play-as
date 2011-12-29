@@ -36,20 +36,25 @@ public class SubversionVersionControlSystem implements VersionControlSystem {
 	@Override
 	public String checkout(final String pid, final String url) throws Exception {
 		final String checkoutPid = "svn-checkout-" + pid;
-		return ProcessManager.executeCommand(checkoutPid, getFullSubversionPath() + " checkout " + url + " apps/" + pid, new StringBuffer());
+		return ProcessManager.executeCommand(checkoutPid,
+				getFullSubversionPath() + " checkout " + url + " apps/" + pid,
+				new StringBuffer(), false);
 	}
 	
 	@Override
 	public String update(final String pid) throws Exception {
 		final String checkoutPid = "svn-update-" + pid;
-		return ProcessManager.executeCommand(checkoutPid, getFullSubversionPath() + " update", new StringBuffer(), new File("apps/" + pid));
+		return ProcessManager.executeCommand(checkoutPid,
+				getFullSubversionPath() + " update", new StringBuffer(),
+				new File("apps/" + pid), false);
 	}
 	
 	@Override
 	public String cleanup(final String pid) throws Exception {
 		final String checkoutPid = "svn-revert-" + pid;
 		final StringBuffer output = new StringBuffer();
-		ProcessManager.executeCommand(checkoutPid, getFullSubversionPath() + " revert *", output);
+		ProcessManager.executeCommand(checkoutPid, getFullSubversionPath()
+				+ " revert *", output, false);
 		return output.toString(); 
 	}
 }
