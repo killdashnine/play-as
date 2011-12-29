@@ -102,7 +102,7 @@ public class ProcessManager extends Job {
 
 			final boolean isRunning = isProcessRunning(application.pid, ProcessType.PLAY);
 			if(application.enabled && application.checkedOut && !isRunning) {
-				application.start(false);
+				application.start(false, false);
 			}
 			else if(!application.enabled && isRunning) {		
 				final String pid = application.pid + PROCESS_START_POSTFIX;

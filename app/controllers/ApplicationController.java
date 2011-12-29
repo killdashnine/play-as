@@ -78,7 +78,7 @@ public class ApplicationController extends Controller {
 		else {
 			Logger.info("Starting %s, this could take up to %s seconds when application fails to start", application.pid, Application.getCommandTimeout());
 			// forced start
-			application.start(true);
+			application.start(true, true);
 
 			// make the action persistent upon crash
 			application.enabled = true;

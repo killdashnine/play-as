@@ -104,8 +104,9 @@ public class Application extends Model {
 	/**
 	 * Start the application
 	 * @param force Force start?
+	 * @param enable Set application enabled
 	 */
-	public void start(boolean force) throws Exception {
+	public void start(boolean force, boolean enable) throws Exception {
 		if(!force && !enabled) {
 			throw new Exception("Can not start disabled application " + pid);
 		}
@@ -142,6 +143,14 @@ public class Application extends Model {
 					.getFullPlayPath()
 					+ " status .", new StringBuffer(), new File("apps/" + pid
 					+ "/"), false);
+			
+			if(enable) {
+				enabled = true;
+				save();
+				
+				// flush the state to the database because we are going to remove the kept id
+				em().flush();
+			}
 			
 			Logger.info("Started %s", pid);
 		}
