@@ -164,7 +164,7 @@ public class Application extends Model {
 			
 			// Try to delete server.pid
 			final File serverPid = new File("apps/" + pid + "/server.pid");
-			if(serverPid.exists() && !new File("apps/" + pid + "/server.pid").delete()) {
+			if(force && serverPid.exists() && !new File("apps/" + pid + "/server.pid").delete()) {
 				throw new Exception("Unable to remove server.pid for falsely started application, remove manually");
 			}
 			
