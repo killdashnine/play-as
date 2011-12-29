@@ -45,7 +45,7 @@ public class ConfigurationManager extends Job {
 	/**
 	 * What index is used for container provided properties
 	 */
-	private static final int PRIORITY_MARGIN = 1000;
+	public static final int PRIORITY_MARGIN = 1000;
 
 	/**
 	 * Properties files use ISO-8859-1 encoding

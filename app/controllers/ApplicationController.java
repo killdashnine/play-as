@@ -38,7 +38,7 @@ public class ApplicationController extends Controller {
 			notFound();
 		}
 		else {
-			final List<ApplicationProperty> properties = ApplicationProperty.find("application = ? and priority > 99 order by priority", application).fetch();
+			final List<ApplicationProperty> properties = ApplicationProperty.find("application = ? and priority > ? order by priority", application, ConfigurationManager.PRIORITY_MARGIN).fetch();
 			render(application, properties);
 		}
 	}
