@@ -158,15 +158,15 @@ public class ProcessManager extends Job {
 		
 		// asynchronous waiting here
 		while(isProcessRunning(pid, ProcessType.COMMAND)) {
-			readCommandOutput(log, reader, output, false);
-			
-			// check if the command produced error output
-			if(readCommandOutput(log, errorReader, output, true)) {
-				hasErrors = true;
-			}
-				
+			hasErrors = readCommandOutput(output, log, reader, errorReader,
+					hasErrors);
+
 			Thread.sleep(10);
 		}
+		
+		// Run log interceptors once more to flush all buffers
+		hasErrors = readCommandOutput(output, log, reader, errorReader,
+				hasErrors);
 		
 		if(log) {
 			Logger.info("Process: %s has stopped with exit value: %s keep: %s", pid, process.exitValue(), keepPid);
@@ -187,6 +187,19 @@ public class ProcessManager extends Job {
 		}
 	
 		return output.toString();
+	}
+
+	private static boolean readCommandOutput(final StringBuffer output,
+			boolean log, final BufferedReader reader,
+			final BufferedReader errorReader, boolean hasErrors)
+			throws IOException {
+		readCommandOutput(log, reader, output, false);
+		
+		// check if the command produced error output
+		if(readCommandOutput(log, errorReader, output, true)) {
+			hasErrors = true;
+		}
+		return hasErrors;
 	}
 
 	/**

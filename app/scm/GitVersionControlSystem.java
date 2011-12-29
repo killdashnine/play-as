@@ -27,7 +27,7 @@ import core.ProcessManager;
  */
 public class GitVersionControlSystem implements VersionControlSystem {
 
-	public String getFullGitPath() {
+	public static String getFullGitPath() {
 		final String path = Play.configuration.getProperty("path.git");
 		// return setting from application.conf or assume command is on the instance's path
 		return path == null || path.isEmpty() ? "git" : path;
@@ -54,7 +54,9 @@ public class GitVersionControlSystem implements VersionControlSystem {
 		}
 		catch(Exception e) {
 			// Git will print to stderr when pull is already up-to-date
-			// It's safe to swallow any exception here since we already did a cleanup
+			if(!output.toString().contains("Already up-to-date")) {
+				throw e;
+			}
 		}
 		
 		return output.toString();
