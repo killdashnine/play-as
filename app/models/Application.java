@@ -232,10 +232,12 @@ public class Application extends Model {
 	 * Run play deps command for the application
 	 */
 	private void resolveDependencies() throws Exception {
-		ProcessManager.executeCommand(pid + "-deps", ProcessManager
-				.getFullPlayPath()
-				+ " deps --sync .", new StringBuffer(), new File("apps/" + pid
-				+ "/"), false);
+		final String command = ProcessManager.getFullPlayPath()
+				+ " deps --sync " + (mode == Mode.PROD ? "--forProd" : "")
+				+ " .";
+
+		ProcessManager.executeCommand(pid + "-deps", command,
+				new StringBuffer(), new File("apps/" + pid + "/"), false);
 	}
 	
 	/**
