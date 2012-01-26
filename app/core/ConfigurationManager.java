@@ -159,7 +159,7 @@ public class ConfigurationManager extends Job {
 			}
 		}
 		
-		int priority = PRIORITY_MARGIN; // safe margin
+		int priority = PRIORITY_MARGIN + 1; // safe margin
 		for(final Object rawKey : properties.keySet()) {
 			final String key = (String) rawKey;
 			final String value = (String) properties.getProperty(key);
