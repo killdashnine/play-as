@@ -64,7 +64,7 @@ public class ProcessManager extends Job {
 	 * @param command The command to execute
 	 * @param workingPath The path to execute the command from (may be null)
 	 */
-	public static Process executeProcess(final String pid, final String command, File workingPath, boolean keepPid) throws Exception {
+	public static synchronized Process executeProcess(final String pid, final String command, File workingPath, boolean keepPid) throws Exception {
 		synchronized (processes) {
 			// we don't allow multiple pids running at the same time
 			if(processes.containsKey(pid)) {
@@ -106,7 +106,7 @@ public class ProcessManager extends Job {
 			}
 			else if(!application.enabled && isRunning) {		
 				final String pid = application.pid + PROCESS_START_POSTFIX;
-				if(!processes.containsKey(pid)) {
+				if(!processes.containsKey(pid) && !keptPids.contains(pid)) {
 					Logger.info("It appears %s (PID: %s) is running while it should not", application.pid, pid);
 					// there is no process currently booting so kill the Play! instance
 					application.stop();
@@ -143,7 +143,7 @@ public class ProcessManager extends Job {
 	 * @param workingPath Path to execute the command from
 	 * @param Keep pid in process map for manual removal?
 	 */
-	public static String executeCommand(final String pid,
+	public static synchronized String executeCommand(final String pid,
 			final String command, final StringBuffer output, boolean log, final File workingPath, final boolean keepPid) throws Exception {
 		
 		if(log) {
