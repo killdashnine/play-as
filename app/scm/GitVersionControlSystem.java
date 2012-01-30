@@ -50,7 +50,7 @@ public class GitVersionControlSystem implements VersionControlSystem {
 
 		try {
 			ProcessManager.executeCommand(checkoutPid, getFullGitPath()
-					+ " pull origin master", output, new File("apps/" + pid), false);
+					+ " pull origin master --tags", output, new File("apps/" + pid), false);
 		}
 		catch(Exception e) {
 			// Git will print to stderr when pull is already up-to-date or on fast-forward merge
