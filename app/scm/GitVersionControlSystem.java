@@ -53,8 +53,8 @@ public class GitVersionControlSystem implements VersionControlSystem {
 					+ " pull origin master", output, new File("apps/" + pid), false);
 		}
 		catch(Exception e) {
-			// Git will print to stderr when pull is already up-to-date
-			if(!output.toString().contains("Already up-to-date")) {
+			// Git will print to stderr when pull is already up-to-date or on fast-forward merge
+			if(!output.toString().contains("Already up-to-date") && !output.toString().contains("Fast-forward")) {
 				throw e;
 			}
 		}
