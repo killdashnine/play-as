@@ -21,11 +21,14 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import net.sf.oval.constraint.Email;
+
 import models.Application;
 import models.ApplicationProperty;
 import play.Logger;
 import play.Play;
 import play.data.validation.Valid;
+import play.db.jpa.JPA;
 import play.mvc.Controller;
 import core.ConfigurationManager;
 import core.ProcessManager;
@@ -137,19 +140,22 @@ public class ApplicationController extends Controller {
 			notFound();
 		}
 		else {
+			application.stop();
+			
+			// make sure it gets stopped
+			application.enabled = false;
+			JPA.em().flush();
+			
 			// First we remove the entity to avoid the process manager to start it back up again
 			for(final ApplicationProperty property : application.properties) {
 				property.delete();
 			}
 			
 			application.delete();
-			
-			if(application.enabled) {
-				application.stop();
-			}
-			
 			application.clean();
 	
+			Logger.info("Removed %s", application.pid);
+			
 			ManagerController.index();
 		}
 	}
