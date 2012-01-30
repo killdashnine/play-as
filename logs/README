@@ -1,1 +1,3 @@
-Contains the log files for each application
+Contains the log files for the application server.
+
+All log files for each individual application are stored in apps/{app}/logs
