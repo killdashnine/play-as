@@ -35,10 +35,17 @@ th {
 	padding-right: 20px;
 	border-bottom: 1px solid #000;
 	color: #02246b;
+	background: #ddd; /* for non-css3 browsers */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#dddddd'); /* for IE */
+	background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#ddd)); /* for webkit browsers */
+	background: -moz-linear-gradient(top,  #eee,  #ddd); /* for firefox 3.6+ */ 
 }
 
 td {
-	background-color: lightgrey;
+	background: #eee; /* for non-css3 browsers */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#dddddd', endColorstr='#eeeeee'); /* for IE */
+	background: -webkit-gradient(linear, left top, left bottom, from(#ddd), to(#eee)); /* for webkit browsers */
+	background: -moz-linear-gradient(top,  #ddd,  #eee); /* for firefox 3.6+ */ 
 }
 
 a, a:visited {
