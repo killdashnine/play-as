@@ -18,8 +18,8 @@ package scm;
 
 import java.io.File;
 
+import models.Application;
 import play.Play;
-
 import core.ProcessManager;
 
 /**
@@ -50,8 +50,8 @@ public class SubversionVersionControlSystem implements VersionControlSystem {
 	}
 	
 	@Override
-	public String cleanup(final String pid) throws Exception {
-		final String checkoutPid = "svn-revert-" + pid;
+	public String cleanup(final Application application) throws Exception {
+		final String checkoutPid = "svn-revert-" + application.pid;
 		final StringBuffer output = new StringBuffer();
 		ProcessManager.executeCommand(checkoutPid, getFullSubversionPath()
 				+ " revert *", output, false);

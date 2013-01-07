@@ -62,7 +62,7 @@ public class ConfigurationManager extends Job {
 	 * @param application The application to generate the path for
 	 */
 	private static String getConfigurationFilePath(final Application application) {
-		return "apps/" + application.pid + "/conf/application.conf";
+		return "apps/" + application.pid + "/" + (application.subfolder == null ? "" : application.subfolder) + "conf/application.conf";
 	}
 	
 	/**
@@ -70,7 +70,7 @@ public class ConfigurationManager extends Job {
 	 * @param application The application to generate the path for
 	 */
 	private static String getLoggingConfigurationFilePath(final Application application) {
-		return "apps/" + application.pid + "/conf/log4j.properties";
+		return "apps/" + application.pid + "/" + (application.subfolder == null ? "" : application.subfolder) + "conf/log4j.properties";
 	}
 
 	/**

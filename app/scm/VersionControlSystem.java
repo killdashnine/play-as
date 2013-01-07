@@ -17,6 +17,8 @@
 
 package scm;
 
+import models.Application;
+
 /**
  * Interface for a Version Control System (VCS)
  *
@@ -40,5 +42,5 @@ public interface VersionControlSystem {
 	 * Remove all changes made by the application server
 	 * @param pid Program ID
 	 */
-	public String cleanup(final String pid) throws Exception;
+	public String cleanup(final Application application) throws Exception;
 }
