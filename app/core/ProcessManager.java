@@ -100,7 +100,7 @@ public class ProcessManager extends Job {
 		// check not running applications that should be running
 		for(final Application application : applications) {
 
-			final boolean isRunning = isProcessRunning(application.pid, ProcessType.PLAY);
+			final boolean isRunning = isProcessRunning(application.pid + "/" + (application.subfolder == null ? "" : application.subfolder), ProcessType.PLAY);
 			if(application.enabled && application.checkedOut && !isRunning) {
 				application.start(false, false);
 			}
