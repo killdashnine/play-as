@@ -35,7 +35,7 @@ public class LogController extends WebSocketController {
 		else {
 			try {
 				final ApplicationProperty logFileProperty = ApplicationProperty.findLogFileProperty(application);
-				logToOutbound("apps/" + application.pid + "/" + logFileProperty.value, true);
+				logToOutbound("apps/" + application.pid + "/" + (application.subfolder == null ? "" : application.subfolder) + logFileProperty.value, true);
 			}
 			catch(FileNotFoundException e) {
 				// ignore, logs may have been removed
