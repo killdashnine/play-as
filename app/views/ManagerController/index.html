@@ -21,6 +21,13 @@
 			</td>
 		</tr>
 		<tr>
+			<td>Subfolder (optional, must end with /):</td>
+			<td>
+				<input type="text" name="application.subfolder" value="${flash['application.subfolder']}"/>
+				<span class="error">#{error 'application.subfolder' /}</span>
+			</td>
+		</tr>
+		<tr>
 			<td>VCS type:</td>
 			<td>
 				<select name="application.vcsType">

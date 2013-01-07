@@ -18,8 +18,8 @@ package scm;
 
 import java.io.File;
 
+import models.Application;
 import play.Play;
-
 import core.ProcessManager;
 
 /**
@@ -63,14 +63,14 @@ public class GitVersionControlSystem implements VersionControlSystem {
 	}
 	
 	@Override
-	public String cleanup(final String pid) throws Exception {
-		final String cleanupPid = "git-cleanup-" + pid;
+	public String cleanup(final Application application) throws Exception {
+		final String cleanupPid = "git-cleanup-" + application.pid;
 		final StringBuffer output = new StringBuffer();
 		ProcessManager.executeCommand(cleanupPid, getFullGitPath()
-				+ " --git-dir=apps/" + pid + "/.git --work-tree=apps/" + pid
-				+ " checkout -- conf/application.conf", output, false);
+				+ " --git-dir=apps/" + application.pid + "/.git --work-tree=apps/" + application.pid
+				+ " checkout -- " + (application.subfolder == null ? "" : application.subfolder) + "conf/application.conf", output, false);
 		ProcessManager.executeCommand(cleanupPid, getFullGitPath() + " gc",
-				output, new File("apps/" + pid), false);
+				output, new File("apps/" + application.pid), false);
 		return output.toString(); 
 	}
 }

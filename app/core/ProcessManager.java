@@ -38,7 +38,7 @@ import play.jobs.Job;
 /**
  * Process management for all spawned subprocesses.
  */
-@Every("1s")
+@Every("10s")
 public class ProcessManager extends Job {
 	
 	public static final String PROCESS_START_POSTFIX = "-start";
@@ -100,7 +100,7 @@ public class ProcessManager extends Job {
 		// check not running applications that should be running
 		for(final Application application : applications) {
 
-			final boolean isRunning = isProcessRunning(application.pid, ProcessType.PLAY);
+			final boolean isRunning = isProcessRunning(application.pid + "/" + (application.subfolder == null ? "" : application.subfolder), ProcessType.PLAY);
 			if(application.enabled && application.checkedOut && !isRunning) {
 				application.start(false, false);
 			}
@@ -315,7 +315,7 @@ public class ProcessManager extends Job {
 				// If the container was killed, we are still able to re-attach to the still running "childs"
 				executeCommand(pid + "-check-" + System.currentTimeMillis(), getFullPlayPath() + " pid .",
 						new StringBuffer(), false,
-						new File("apps/" + pid + "/"), false);
+						new File("apps/" + pid), false);
 				return true;
 			} catch (Exception e) {
 				return false;

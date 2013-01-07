@@ -33,6 +33,7 @@ import org.apache.commons.io.FileUtils;
 import play.Logger;
 import play.Play;
 import play.Play.Mode;
+import play.data.validation.Match;
 import play.data.validation.Required;
 import play.db.jpa.Model;
 import play.libs.WS;
@@ -92,6 +93,13 @@ public class Application extends Model {
 	public Mode mode;
 	
 	/**
+	 * App subfolder, should always end with /
+	 */
+	@Column(nullable = true)
+	@Match("^.*/$")
+	public String subfolder;
+	
+	/**
 	 * Configuration properties used for application.conf generation
 	 */
 	@OneToMany(fetch=FetchType.EAGER, mappedBy="application")
@@ -133,7 +141,7 @@ public class Application extends Model {
 			ProcessManager.executeCommand(startPid, ProcessManager
 					.getFullPlayPath()
 					+ " start .", new StringBuffer(), new File("apps/" + pid
-					+ "/"), true);
+					+ "/" + (subfolder == null ? "" : subfolder)), true);
 
 			// Send 'ping' HTTP requests to verify the application
 			checkApplicationIsRunning(url);
@@ -142,7 +150,7 @@ public class Application extends Model {
 			ProcessManager.executeCommand(pid + "-status", ProcessManager
 					.getFullPlayPath()
 					+ " status .", new StringBuffer(), new File("apps/" + pid
-					+ "/"), false);
+					+ "/" + (subfolder == null ? "" : subfolder)), false);
 			
 			if(enable) {
 				enabled = true;
@@ -163,8 +171,8 @@ public class Application extends Model {
 			Logger.info(e, "Failed to start %s", pid);
 			
 			// Try to delete server.pid
-			final File serverPid = new File("apps/" + pid + "/server.pid");
-			if(force && serverPid.exists() && !new File("apps/" + pid + "/server.pid").delete()) {
+			final File serverPid = new File("apps/" + pid + "/" + (subfolder == null ? "" : subfolder) + "server.pid");
+			if(force && serverPid.exists() && !new File("apps/" + pid + "/" + (subfolder == null ? "" : subfolder) + "server.pid").delete()) {
 				throw new Exception("Unable to remove server.pid for falsely started application, remove manually");
 			}
 			
@@ -237,14 +245,14 @@ public class Application extends Model {
 				+ " .";
 
 		ProcessManager.executeCommand(pid + "-deps", command,
-				new StringBuffer(), new File("apps/" + pid + "/"), false);
+				new StringBuffer(), new File("apps/" + pid + "/" + (subfolder == null ? "" : subfolder)), false);
 	}
 	
 	/**
 	 * Stop the application
 	 */
 	public void stop() throws Exception {
-		ProcessManager.executeProcess(pid + "-stop", ProcessManager.getFullPlayPath() + " stop .", new File("apps/" + pid + "/"), false);
+		ProcessManager.executeProcess(pid + "-stop", ProcessManager.getFullPlayPath() + " stop .", new File("apps/" + pid + "/" + (subfolder == null ? "" : subfolder)), false);
 		Logger.info("Application %s stopped", pid);
 	}
 	
@@ -264,7 +272,7 @@ public class Application extends Model {
 		if(!checkedOut) {
 			throw new Exception("Application " + pid + " has not yet been checked out from SCM");
 		}
-		return ProcessManager.isProcessRunning(pid, ProcessType.PLAY);
+		return ProcessManager.isProcessRunning(pid + "/" + (subfolder == null ? "" : subfolder), ProcessType.PLAY);
 	}
 	
 	public boolean isBooting() throws Exception {
@@ -277,7 +285,7 @@ public class Application extends Model {
 	public void pull() throws Exception {
 		// pull before touching the process (or we risk killing a process on updating failure)
 		final VersionControlSystem vcs = VersionControlSystemFactory.getVersionControlSystem(vcsType);
-		vcs.cleanup(pid); // cleanup working directory
+		vcs.cleanup(this); // cleanup working directory
 		vcs.update(pid); // pull changes from git
 		
 		resolveDependencies();
@@ -327,6 +335,6 @@ public class Application extends Model {
 		return ProcessManager.executeCommand("status-" + pid, ProcessManager
 				.getFullPlayPath()
 				+ " status .", new StringBuffer(), false, new File("apps/"
-				+ pid + "/"), false);
+				+ pid + "/" + (subfolder == null ? "" : subfolder)), false);
 	}	
 }
