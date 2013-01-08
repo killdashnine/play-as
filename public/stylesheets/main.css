@@ -61,6 +61,18 @@ a:hover {
 	color: red;
 }
 
+.green {
+	color: green;
+}
+
+.orange {
+	color: orange;
+}
+
+.red {
+	color: red;
+}
+
 #log {
 	overflow: scroll;
 	width: 1024px;
