@@ -139,7 +139,7 @@ public class ConfigurationManager extends Job {
         new ApplicationProperty(application, 6, "log4j.appender.Rolling.MaxFileSize", "128KB").save();
         new ApplicationProperty(application, 7, "log4j.appender.Rolling.MaxBackupIndex", "100").save();
         new ApplicationProperty(application, 8, "log4j.appender.Rolling.layout", "org.apache.log4j.PatternLayout").save();
-        new ApplicationProperty(application, 9, "log4j.appender.Rolling.layout.ConversionPattern", "%d{ABSOLUTE} %-5p ~ %m%n").save();
+        new ApplicationProperty(application, 9, "log4j.appender.Rolling.layout.ConversionPattern", "%d %-5p ~ %m%n").save();
 	}
 	
 	/**
