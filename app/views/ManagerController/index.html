@@ -73,7 +73,13 @@
     
     // Message received on the socket
     socket.onmessage = function(event) {
-        $('#log').append(event.data);
+    	var row = event.data
+			.replace('INFO', '<span class="green">INFO</span>')
+			.replace('DEBUG', '<span class="green">DEBUG</span>')
+			.replace('WARN', '<span class="orange">WARNING</span>')
+			.replace('ERROR', '<span class="red">ERROR</span>');
+	
+    	$('#log').append(row);
         $('#log').scrollTo('max', { axis:'y' } );
     }
 

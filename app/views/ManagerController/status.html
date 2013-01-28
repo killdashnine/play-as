@@ -14,14 +14,14 @@
 		   		<td>${application.mode}</td>
 		   		<td>
 		   			#{if application.booting == true}
-		   				<span style="color: orange">booting</span>
+		   				<span class="orange">booting</span>
 		   			#{/if}
 		   			#{else}
 		   				#{if application.running == true}
-			   				<span style="color: green">running</span>
+			   				<span class="green">running</span>
 			   			#{/if}
 			   			#{else}
-			   				<span style="color: red">stopped</span> 
+			   				<span class="red">stopped</span> 
 			   			#{/else}
 			   		#{/else}
 		   		<td>
@@ -29,8 +29,8 @@
 		   				<a onclick="start(${application.id})">start</a>
 		   			#{/if}
 		   			#{else}
-		   				<a onclick="stop(${application.id})" style="color: red">stop</a>
-		   				<a onclick="restart(${application.id})" style="color: green">restart</a>  
+		   				<a onclick="stop(${application.id})" class="red">stop</a>
+		   				<a onclick="restart(${application.id})" class="green">restart</a>  
 		   			#{/else}
 		   			<a onclick="update(${application.id})">update</a>
 		   			<a onclick="remove(${application.id})">remove</a>
